@@ -34,3 +34,10 @@ sysinfo.txt
 # Builds
 *.apk
 *.unitypackage
+RayTracingLearning/.idea/
+RayTracingLearning/Assets/Rider/Plugins/Editor/JetBrains/JetBrains.Rider.Unity.Editor.Plugin.Repacked.dll.meta
+RayTracingLearning/Assets/Rider/Plugins/Editor/JetBrains/JetBrains.Rider.Unity.Editor.Plugin.Repacked.dll
+RayTracingLearning/Assets/Rider/Plugins/Editor/JetBrains.meta
+RayTracingLearning/Assets/Rider/Plugins/Editor.meta
+RayTracingLearning/Assets/Rider/Plugins.meta
+RayTracingLearning/Assets/Rider.meta
