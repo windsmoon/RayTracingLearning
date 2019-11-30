@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+﻿using RayTracingLearning.RayTracer.Math;
 
 namespace RayTracingLearning.RayTracer
 {
@@ -25,7 +25,7 @@ namespace RayTracingLearning.RayTracer
         public Ray(Vector3 origin, Vector3 direction)
         {
             this.origin = origin;
-            this.direction = direction.normalized;
+            this.direction = direction.GetNormalizedVector();
         }
         #endregion
         

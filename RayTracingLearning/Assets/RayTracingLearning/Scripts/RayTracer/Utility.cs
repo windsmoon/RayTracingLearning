@@ -1,4 +1,4 @@
-using UnityEngine;
+using RayTracingLearning.RayTracer.Math;
 
 namespace RayTracingLearning.RayTracer
 {
@@ -34,7 +34,7 @@ namespace RayTracingLearning.RayTracer
 
             if (isHit)
             {
-                float t = (-b - Mathf.Sqrt(discriminant)) / (2f * a);
+                float t = (-b - (float)System.Math.Sqrt(discriminant)) / (2f * a);
                 hitPoint = ray.Origin + t * ray.Direction;
             }
 

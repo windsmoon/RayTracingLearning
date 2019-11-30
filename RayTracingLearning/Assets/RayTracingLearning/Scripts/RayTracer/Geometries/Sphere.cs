@@ -1,4 +1,4 @@
-using UnityEngine;
+using RayTracingLearning.RayTracer.Math;
 
 namespace RayTracingLearning.RayTracer.Geometries
 {
@@ -40,7 +40,7 @@ namespace RayTracingLearning.RayTracer.Geometries
             
             if (isHit)
             {
-                float t = (-b - Mathf.Sqrt(discriminant)) / a; // eliminated 2
+                float t = (-b - (float)System.Math.Sqrt(discriminant)) / a; // eliminated 2
                 
                 if (IsValidT(t, tMin, tMax))
                 {
@@ -51,7 +51,7 @@ namespace RayTracingLearning.RayTracer.Geometries
                     return true;
                 }
                 
-                t = (-b + Mathf.Sqrt(discriminant)) / a; // eliminated 2
+                t = (-b + (float)System.Math.Sqrt(discriminant)) / a; // eliminated 2
 
                 if (IsValidT(t, tMin, tMax))
                 {

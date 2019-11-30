@@ -1,4 +1,4 @@
-using UnityEngine;
+using RayTracingLearning.RayTracer.Math;
 
 namespace RayTracingLearning.RayTracer
 {

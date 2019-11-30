@@ -1,12 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEditor.Playables;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using RayTracingLearning.RayTracer;
 using RayTracingLearning.RayTracer.Geometries;
 using Ray = RayTracingLearning.RayTracer.Ray;
 using Utility = RayTracingLearning.RayTracer.Utility;
+using Vector3 = RayTracingLearning.RayTracer.Math.Vector3;
 
 namespace RayTracingLearning
 {
@@ -52,7 +51,7 @@ namespace RayTracingLearning
 
         private Color GetColorForBackground(Ray ray)
         {
-            float t = 0.5f * (ray.Direction.y + 1); // -1 ~ 1 to 0 ~ 1
+            float t = 0.5f * (ray.Direction.Y + 1); // -1 ~ 1 to 0 ~ 1
             return Color.Lerp(new Color(1f, 1f, 1f), new Color(0.5f, 0.7f, 1.0f), t);
         }
 
@@ -75,7 +74,7 @@ namespace RayTracingLearning
             {
                 Vector3 normal = hitInfo.Normal;
                 Vector3 colorVector = (normal + new Vector3(1f, 1f, 1f)) * 0.5f;
-                return new Color(colorVector.x, colorVector.y, colorVector.z);
+                return new Color(colorVector.X, colorVector.Y, colorVector.Z);
             }
 
             return GetColorForBackground(ray);
@@ -91,7 +90,7 @@ namespace RayTracingLearning
             {
                 Vector3 normal = hitInfo.Normal;
                 Vector3 colorVector = (normal + new Vector3(1f, 1f, 1f)) * 0.5f;
-                return new Color(colorVector.x, colorVector.y, colorVector.z);
+                return new Color(colorVector.X, colorVector.Y, colorVector.Z);
             }
             
             return GetColorForBackground(ray);
