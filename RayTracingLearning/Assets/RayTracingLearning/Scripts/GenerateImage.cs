@@ -17,12 +17,13 @@ namespace RayTracingLearning
         [ContextMenu("Generate Image")]
         private void Generate()
         {
+            // build the world, width : 200, height : 100, depth : 100
             Texture2D texture = new Texture2D(200, 100);
             float b = 0.2f;
             Vector3 horizontalLength = new Vector3(4, 0, 0); // width : 200
             Vector3 verticalLength = new Vector3(0, 2, 0); // height : 100
             Vector3 center = new Vector3(0, 0, 0);
-            Vector3 lowLeftCorner = new Vector3(-2, -1, 1); // z : 1
+            Vector3 lowLeftCorner = new Vector3(-2, -1, 1); // depth : 100, z : 1
 
             for (int i = 0; i < texture.width; ++i)
             {
@@ -45,7 +46,8 @@ namespace RayTracingLearning
         {
             //return GetColorForBackground(ray);
             //return GetColorForSphere(ray, new Vector3(0f, 0f, 1f), 0.5f);
-            return GetNormalColorForSphere(ray, new Vector3(0f, 0f, 1f), 0.5f);
+            //return GetNormalColorForSphere(ray, new Vector3(0f, 0f, 1f), 0.5f);
+            return GetTwoSphereNormalColorForSphere(ray);
         }
 
         private Color GetColorForBackground(Ray ray)
@@ -66,16 +68,32 @@ namespace RayTracingLearning
 
         private Color GetNormalColorForSphere(Ray ray, Vector3 center, float radius)
         {
-            HitInfo hitInfo;
+            HitInfo hitInfo = new HitInfo();
             Sphere sphere = new Sphere(center, radius);
             
-            if (sphere.GetHitInfo(ray, out hitInfo, 0, float.MaxValue))
+            if (sphere.GetHitInfo(ray, ref hitInfo, 0, float.MaxValue))
             {
                 Vector3 normal = hitInfo.Normal;
                 Vector3 colorVector = (normal + new Vector3(1f, 1f, 1f)) * 0.5f;
                 return new Color(colorVector.x, colorVector.y, colorVector.z);
             }
 
+            return GetColorForBackground(ray);
+        }
+
+        private Color GetTwoSphereNormalColorForSphere(Ray ray)
+        {
+            HitInfo hitInfo = new HitInfo();
+            Sphere sphere1 = new Sphere(new Vector3(0, 0, 1f), 0.5f);
+            Sphere sphere2 = new Sphere(new Vector3(0,-100.5f,1f), 100f);
+            
+            if (Geometry.GetHitInfo(ray, new List<Geometry>() {sphere1, sphere2}, ref hitInfo))
+            {
+                Vector3 normal = hitInfo.Normal;
+                Vector3 colorVector = (normal + new Vector3(1f, 1f, 1f)) * 0.5f;
+                return new Color(colorVector.x, colorVector.y, colorVector.z);
+            }
+            
             return GetColorForBackground(ray);
         }
         #endregion

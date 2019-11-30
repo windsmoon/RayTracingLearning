@@ -29,7 +29,7 @@ namespace RayTracingLearning.RayTracer.Geometries
             return false;
         }
         
-        public override bool GetHitInfo(Ray ray, out HitInfo hitInfo, float tMin, float tMax)
+        public override bool GetHitInfo(Ray ray, ref HitInfo hitInfo, float tMin, float tMax)
         {
             Vector3 oc = ray.Origin - center;
             float a = Vector3.Dot(ray.Direction, ray.Direction);
@@ -37,7 +37,6 @@ namespace RayTracingLearning.RayTracer.Geometries
             float c = Vector3.Dot(oc, oc) - radius * radius;
             float discriminant = b * b - a * c; // eliminated 2
             bool isHit = discriminant > 0f;
-            hitInfo = new HitInfo();
             
             if (isHit)
             {
