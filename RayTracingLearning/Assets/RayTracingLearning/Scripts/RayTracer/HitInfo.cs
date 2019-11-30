@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace RayTracingLearning
+namespace RayTracingLearning.RayTracer
 {
     public struct HitInfo
     {
