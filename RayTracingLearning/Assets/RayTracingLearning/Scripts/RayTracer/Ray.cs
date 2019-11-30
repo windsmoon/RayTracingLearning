@@ -10,7 +10,6 @@ namespace RayTracingLearning.RayTracer
         #endregion
         
         #region properties
-
         public Vector3 Origin
         {
             get { return origin; }

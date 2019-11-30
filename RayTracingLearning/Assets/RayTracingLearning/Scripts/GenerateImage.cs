@@ -4,6 +4,7 @@ using UnityEditor.Playables;
 using UnityEngine;
 using UnityEngine.UI;
 using RayTracingLearning.RayTracer;
+using RayTracingLearning.RayTracer.Geometries;
 using Ray = RayTracingLearning.RayTracer.Ray;
 using Utility = RayTracingLearning.RayTracer.Utility;
 
@@ -65,12 +66,12 @@ namespace RayTracingLearning
 
         private Color GetNormalColorForSphere(Ray ray, Vector3 center, float radius)
         {
-            Vector3 hitPoint;
+            HitInfo hitInfo;
+            Sphere sphere = new Sphere(center, radius);
             
-            if (Utility.GetRaySphereHitPoint(ray, center, radius, out hitPoint))
+            if (sphere.GetHitInfo(ray, out hitInfo, 0, float.MaxValue))
             {
-                Vector3 normal = hitPoint - center;
-                normal = normal.normalized;
+                Vector3 normal = hitInfo.Normal;
                 Vector3 colorVector = (normal + new Vector3(1f, 1f, 1f)) * 0.5f;
                 return new Color(colorVector.x, colorVector.y, colorVector.z);
             }
