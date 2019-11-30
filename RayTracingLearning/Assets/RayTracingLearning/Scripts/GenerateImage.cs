@@ -23,7 +23,7 @@ namespace RayTracingLearning
             //Vector3 verticalLength = new Vector3(0, 2, 0); // height : 100
             //Vector3 center = new Vector3(0, 0, 0);
             //Vector3 lowLeftCorner = new Vector3(-2, -1, 1); // depth : 50, z : 1
-            Camera camera = new Camera(new Vector3(0f, 0f, 0f), 4f, 2f, 2f);
+            Camera camera = new Camera(new Vector3(0f, 0f, 0f), 4f, 2f, 1f);
 
             for (int i = 0; i < texture.width; ++i)
             {
@@ -31,8 +31,8 @@ namespace RayTracingLearning
                 {
                     float u = (float) i / texture.width;
                     float v = (float) j / texture.height;
-                    camera.GetRay(new Vector3())
-                    Ray ray = new Ray(center, lowLeftCorner + u * horizontalLength + v * verticalLength);
+                    Ray ray = camera.GetRay(u, v);
+                    //Ray ray = new Ray(center, lowLeftCorner + u * horizontalLength + v * verticalLength);
                     Color color = GetColor(ray);
                     texture.SetPixel(i, j, color);
                 }
