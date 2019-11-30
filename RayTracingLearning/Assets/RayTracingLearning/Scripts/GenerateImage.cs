@@ -6,6 +6,7 @@ using RayTracingLearning.RayTracer.Geometries;
 using Ray = RayTracingLearning.RayTracer.Ray;
 using Utility = RayTracingLearning.RayTracer.Utility;
 using Vector3 = RayTracingLearning.RayTracer.Math.Vector3;
+using Camera = RayTracingLearning.RayTracer.Camera;
 
 namespace RayTracingLearning
 {
@@ -18,11 +19,11 @@ namespace RayTracingLearning
         {
             // build the world, width : 200, height : 100, depth : 100
             Texture2D texture = new Texture2D(200, 100);
-            float b = 0.2f;
-            Vector3 horizontalLength = new Vector3(4, 0, 0); // width : 200
-            Vector3 verticalLength = new Vector3(0, 2, 0); // height : 100
-            Vector3 center = new Vector3(0, 0, 0);
-            Vector3 lowLeftCorner = new Vector3(-2, -1, 1); // depth : 100, z : 1
+            //Vector3 horizontalLength = new Vector3(4, 0, 0); // width : 200
+            //Vector3 verticalLength = new Vector3(0, 2, 0); // height : 100
+            //Vector3 center = new Vector3(0, 0, 0);
+            //Vector3 lowLeftCorner = new Vector3(-2, -1, 1); // depth : 50, z : 1
+            Camera camera = new Camera(new Vector3(0f, 0f, 0f), 4f, 2f, 2f);
 
             for (int i = 0; i < texture.width; ++i)
             {
@@ -30,6 +31,7 @@ namespace RayTracingLearning
                 {
                     float u = (float) i / texture.width;
                     float v = (float) j / texture.height;
+                    camera.GetRay(new Vector3())
                     Ray ray = new Ray(center, lowLeftCorner + u * horizontalLength + v * verticalLength);
                     Color color = GetColor(ray);
                     texture.SetPixel(i, j, color);
