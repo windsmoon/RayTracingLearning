@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 namespace RayTracingLearning.RayTracer
 {
-    struct Ray
+    public struct Ray
     {
         #region fields
         private Vector3 origin;

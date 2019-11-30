@@ -1,8 +1,11 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Playables;
 using UnityEngine;
 using UnityEngine.UI;
+using RayTracingLearning.RayTracer;
 using Ray = RayTracingLearning.RayTracer.Ray;
+using Utility = RayTracingLearning.RayTracer.Utility;
 
 namespace RayTracingLearning
 {
@@ -27,7 +30,7 @@ namespace RayTracingLearning
                     float u = (float) i / texture.width;
                     float v = (float) j / texture.height;
                     Ray ray = new Ray(center, lowLeftCorner + u * horizontalLength + v * verticalLength);
-                    Color color = GetColorForBackground(ray);
+                    Color color = GetColor(ray);
                     texture.SetPixel(i, j, color);
                 }
             }
@@ -37,10 +40,42 @@ namespace RayTracingLearning
             GetComponent<RawImage>().texture = texture;
         }
 
+        private Color GetColor(Ray ray)
+        {
+            //return GetColorForBackground(ray);
+            //return GetColorForSphere(ray, new Vector3(0f, 0f, 1f), 0.5f);
+            return GetNormalColorForSphere(ray, new Vector3(0f, 0f, 1f), 0.5f);
+        }
+
         private Color GetColorForBackground(Ray ray)
         {
             float t = 0.5f * (ray.Direction.y + 1); // -1 ~ 1 to 0 ~ 1
             return Color.Lerp(new Color(1f, 1f, 1f), new Color(0.5f, 0.7f, 1.0f), t);
+        }
+
+        private Color GetColorForSphere(Ray ray, Vector3 center, float radius)
+        {
+            if (Utility.IsRayHitSphere(ray, center, radius))
+            {
+                return Color.red;
+            }
+
+            return GetColorForBackground(ray);
+        }
+
+        private Color GetNormalColorForSphere(Ray ray, Vector3 center, float radius)
+        {
+            Vector3 hitPoint;
+            
+            if (Utility.GetRaySphereHitPoint(ray, center, radius, out hitPoint))
+            {
+                Vector3 normal = hitPoint - center;
+                normal = normal.normalized;
+                Vector3 colorVector = (normal + new Vector3(1f, 1f, 1f)) * 0.5f;
+                return new Color(colorVector.x, colorVector.y, colorVector.z);
+            }
+
+            return GetColorForBackground(ray);
         }
         #endregion
     }
