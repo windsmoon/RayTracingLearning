@@ -7,13 +7,20 @@ using Ray = RayTracingLearning.RayTracer.Ray;
 using Utility = RayTracingLearning.RayTracer.Utility;
 using Vector3 = RayTracingLearning.RayTracer.Math.Vector3;
 using Camera = RayTracingLearning.RayTracer.Camera;
+using Random = System.Random;
 
 namespace RayTracingLearning
 {
     public class GenerateImage : MonoBehaviour
     {
+        #region fields
+        [SerializeField] 
+        private bool isUseAA = false;
+        [SerializeField]
+        private int aaSampleCount = 100;
+        #endregion
+        
         #region methods
-
         [ContextMenu("Generate Image")]
         private void Generate()
         {
@@ -29,11 +36,7 @@ namespace RayTracingLearning
             {
                 for (int j = texture.height - 1; j >= 0; --j)
                 {
-                    float u = (float) i / texture.width;
-                    float v = (float) j / texture.height;
-                    Ray ray = camera.GetRay(u, v);
-                    //Ray ray = new Ray(center, lowLeftCorner + u * horizontalLength + v * verticalLength);
-                    Color color = GetColor(ray);
+                    Color color = GetColor(camera, texture, i, j);
                     texture.SetPixel(i, j, color);
                 }
             }
@@ -43,7 +46,32 @@ namespace RayTracingLearning
             GetComponent<RawImage>().texture = texture;
         }
 
-        private Color GetColor(Ray ray)
+        private Color GetColor(Camera camera, Texture texture, int x, int y)
+        {
+            if (isUseAA == false)
+            {
+                float u = (float) x / texture.width;
+                float v = (float) y / texture.height;
+                Ray ray = camera.GetRay(u, v);
+                return GetColorImpl(ray);
+            }
+
+            Color color = new Color(0f, 0f, 0f);
+            Random random = new Random();
+            
+            for (int i = 0; i < aaSampleCount; ++i)
+            {
+                float randomU = (float) (x + random.Next(0, 100) * 0.01f) / texture.width;
+                float randomV = (float) (y + random.Next(0, 100) * 0.01f) / texture.height;
+                Ray offsetRay = camera.GetRay(randomU, randomV);
+                Color offsetColor = GetColorImpl(offsetRay);
+                color += offsetColor;
+            }
+
+            return color / aaSampleCount;
+        }
+
+        private Color GetColorImpl(Ray ray)
         {
             //return GetColorForBackground(ray);
             //return GetColorForSphere(ray, new Vector3(0f, 0f, 1f), 0.5f);
