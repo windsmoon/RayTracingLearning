@@ -9,6 +9,7 @@ using Ray = RayTracingLearning.RayTracer.Ray;
 using Vector3 = RayTracingLearning.RayTracer.Math.Vector3;
 using Camera = RayTracingLearning.RayTracer.Camera;
 using Random = System.Random;
+using Color = UnityEngine.Color;
 
 namespace RayTracingLearning
 {
