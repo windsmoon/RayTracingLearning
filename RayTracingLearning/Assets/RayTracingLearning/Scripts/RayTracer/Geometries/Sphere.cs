@@ -29,7 +29,7 @@ namespace RayTracingLearning.RayTracer.Geometries
             return false;
         }
         
-        public override bool GetHitInfo(Ray ray, ref HitInfo hitInfo, float tMin, float tMax)
+        public override bool GetHitInfo(Ray ray, out HitInfo hitInfo, float tMin, float tMax)
         {
             Vector3 oc = ray.Origin - center;
             float a = Vector3.Dot(ray.Direction, ray.Direction);
@@ -46,7 +46,7 @@ namespace RayTracingLearning.RayTracer.Geometries
                 {
                     hitInfo = new HitInfo();
                     hitInfo.HitPoint = ray.Origin + t * ray.Direction;
-                    hitInfo.DistanceFormOriginal = t;
+                    hitInfo.DistanceFormRayOrigin = t;
                     hitInfo.Normal = (hitInfo.HitPoint - center) / radius; // do not have to normalized, just use this method
                     return true;
                 }
@@ -57,12 +57,13 @@ namespace RayTracingLearning.RayTracer.Geometries
                 {
                     hitInfo = new HitInfo();
                     hitInfo.HitPoint = ray.Origin + t * ray.Direction;
-                    hitInfo.DistanceFormOriginal = t;
+                    hitInfo.DistanceFormRayOrigin = t;
                     hitInfo.Normal = (hitInfo.HitPoint - center) / radius; // do not have to normalized, just use this method
                     return true;
                 }
             }
-            
+
+            hitInfo = default(HitInfo);
             return false;
         }
         #endregion

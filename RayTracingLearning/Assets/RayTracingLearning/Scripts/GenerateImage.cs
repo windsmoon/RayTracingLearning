@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using RayTracingLearning.RayTracer;
 using RayTracingLearning.RayTracer.Geometries;
+using RayTracingLearning.RayTracer.Math;
 using Ray = RayTracingLearning.RayTracer.Ray;
-using Utility = RayTracingLearning.RayTracer.Utility;
 using Vector3 = RayTracingLearning.RayTracer.Math.Vector3;
 using Camera = RayTracingLearning.RayTracer.Camera;
 using Random = System.Random;
@@ -18,6 +19,9 @@ namespace RayTracingLearning
         private bool isUseAA = false;
         [SerializeField]
         private int aaSampleCount = 100;
+        private Sphere sphere1;
+        private Sphere sphere2;
+        private List<Geometry> sphereList;
         #endregion
         
         #region methods
@@ -31,12 +35,19 @@ namespace RayTracingLearning
             //Vector3 center = new Vector3(0, 0, 0);
             //Vector3 lowLeftCorner = new Vector3(-2, -1, 1); // depth : 50, z : 1
             Camera camera = new Camera(new Vector3(0f, 0f, 0f), 4f, 2f, 1f);
+            sphere1 = new Sphere(new Vector3(0, 0, 1f), 0.5f);
+            sphere2 = new Sphere(new Vector3(0,-100.5f,1f), 100f);
+            sphereList = new List<Geometry>() {sphere1, sphere2};
 
             for (int i = 0; i < texture.width; ++i)
             {
                 for (int j = texture.height - 1; j >= 0; --j)
                 {
                     Color color = GetColor(camera, texture, i, j);
+                    color.r = (float)Math.Sqrt(color.r);
+                    color.g = (float)Math.Sqrt(color.g);
+                    color.b = (float)Math.Sqrt(color.b);
+                    color.a = 1;
                     texture.SetPixel(i, j, color);
                 }
             }
@@ -76,7 +87,8 @@ namespace RayTracingLearning
             //return GetColorForBackground(ray);
             //return GetColorForSphere(ray, new Vector3(0f, 0f, 1f), 0.5f);
             //return GetNormalColorForSphere(ray, new Vector3(0f, 0f, 1f), 0.5f);
-            return GetTwoSphereNormalColorForSphere(ray);
+            //return GetTwoSphereNormalColorForSphere(ray);
+            return GetTwoSphereDiffuse(ray);
         }
 
         private Color GetColorForBackground(Ray ray)
@@ -87,7 +99,9 @@ namespace RayTracingLearning
 
         private Color GetColorForSphere(Ray ray, Vector3 center, float radius)
         {
-            if (Utility.IsRayHitSphere(ray, center, radius))
+            Sphere sphere = new Sphere(center, radius);
+            
+            if (sphere.IsHit(ray))
             {
                 return Color.red;
             }
@@ -97,10 +111,10 @@ namespace RayTracingLearning
 
         private Color GetNormalColorForSphere(Ray ray, Vector3 center, float radius)
         {
-            HitInfo hitInfo = new HitInfo();
+            HitInfo hitInfo;
             Sphere sphere = new Sphere(center, radius);
             
-            if (sphere.GetHitInfo(ray, ref hitInfo, 0, float.MaxValue))
+            if (sphere.GetHitInfo(ray, out hitInfo, 0, float.MaxValue))
             {
                 Vector3 normal = hitInfo.Normal;
                 Vector3 colorVector = (normal + new Vector3(1f, 1f, 1f)) * 0.5f;
@@ -112,15 +126,22 @@ namespace RayTracingLearning
 
         private Color GetTwoSphereNormalColorForSphere(Ray ray)
         {
-            HitInfo hitInfo = new HitInfo();
-            Sphere sphere1 = new Sphere(new Vector3(0, 0, 1f), 0.5f);
-            Sphere sphere2 = new Sphere(new Vector3(0,-100.5f,1f), 100f);
-            
-            if (Geometry.GetHitInfo(ray, new List<Geometry>() {sphere1, sphere2}, ref hitInfo))
+            if (Geometry.GetHitInfo(ray, sphereList, out HitInfo hitInfo))
             {
                 Vector3 normal = hitInfo.Normal;
                 Vector3 colorVector = (normal + new Vector3(1f, 1f, 1f)) * 0.5f;
                 return new Color(colorVector.X, colorVector.Y, colorVector.Z);
+            }
+            
+            return GetColorForBackground(ray);
+        }
+
+        private Color GetTwoSphereDiffuse(Ray ray)
+        {
+            if (Geometry.GetHitInfo(ray, sphereList, out HitInfo hitInfo))
+            {
+                Vector3 point = hitInfo.HitPoint + hitInfo.Normal + RandomUtility.RandomInSphere(1);
+                return 0.5f * GetTwoSphereDiffuse(new Ray(hitInfo.HitPoint, point - hitInfo.HitPoint));
             }
             
             return GetColorForBackground(ray);
