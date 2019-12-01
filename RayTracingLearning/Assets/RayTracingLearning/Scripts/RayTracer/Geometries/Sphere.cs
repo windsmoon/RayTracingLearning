@@ -1,3 +1,4 @@
+using RayTracingLearning.RayTracer.Materials;
 using RayTracingLearning.RayTracer.Math;
 
 namespace RayTracingLearning.RayTracer.Geometries
@@ -10,7 +11,7 @@ namespace RayTracingLearning.RayTracer.Geometries
         #endregion
 
         #region constructors
-        public Sphere(Vector3 center, float radius)
+        public Sphere(Material material, Vector3 center, float radius) : base(material)
         {
             this.center = center;
             this.radius = radius;
@@ -48,6 +49,7 @@ namespace RayTracingLearning.RayTracer.Geometries
                     hitInfo.HitPoint = ray.Origin + t * ray.Direction;
                     hitInfo.DistanceFormRayOrigin = t;
                     hitInfo.Normal = (hitInfo.HitPoint - center) / radius; // do not have to normalized, just use this method
+                    hitInfo.Geometry = this;
                     return true;
                 }
                 
@@ -59,6 +61,7 @@ namespace RayTracingLearning.RayTracer.Geometries
                     hitInfo.HitPoint = ray.Origin + t * ray.Direction;
                     hitInfo.DistanceFormRayOrigin = t;
                     hitInfo.Normal = (hitInfo.HitPoint - center) / radius; // do not have to normalized, just use this method
+                    hitInfo.Geometry = this;
                     return true;
                 }
             }

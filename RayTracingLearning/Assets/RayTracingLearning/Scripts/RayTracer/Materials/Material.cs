@@ -1,6 +1,6 @@
 using System.Net.Http.Headers;
 
-namespace RayTracingLearning.RayTracer.Material
+namespace RayTracingLearning.RayTracer.Materials
 {
     public abstract class Material
     {

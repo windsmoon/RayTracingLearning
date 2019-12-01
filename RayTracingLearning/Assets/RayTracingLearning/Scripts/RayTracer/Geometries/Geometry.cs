@@ -1,9 +1,27 @@
+using System;
 using System.Collections.Generic;
+using RayTracingLearning.RayTracer.Materials;
 
 namespace RayTracingLearning.RayTracer.Geometries
 {
     public abstract class Geometry
     {
+        #region fields
+        private Material material;
+        #endregion
+        
+        #region constructors
+        public Geometry(Material material)
+        {
+            if (material == null)
+            {
+                throw new Exception("material of a geometry can not be null");
+            }
+            
+            this.material = material;
+        }
+        #endregion
+        
         #region methods
         public abstract bool IsHit(Ray ray);
         public abstract bool GetHitInfo(Ray ray, out HitInfo hitInfo, float tMin, float tMax);

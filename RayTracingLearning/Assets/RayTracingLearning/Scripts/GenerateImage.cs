@@ -36,8 +36,8 @@ namespace RayTracingLearning
             //Vector3 center = new Vector3(0, 0, 0);
             //Vector3 lowLeftCorner = new Vector3(-2, -1, 1); // depth : 50, z : 1
             Camera camera = new Camera(new Vector3(0f, 0f, 0f), 4f, 2f, 1f);
-            sphere1 = new Sphere(new Vector3(0, 0, 1f), 0.5f);
-            sphere2 = new Sphere(new Vector3(0,-100.5f,1f), 100f);
+            sphere1 = new Sphere(null, new Vector3(0, 0, 1f), 0.5f);
+            sphere2 = new Sphere(null, new Vector3(0,-100.5f,1f), 100f);
             sphereList = new List<Geometry>() {sphere1, sphere2};
 
             for (int i = 0; i < texture.width; ++i)
@@ -100,7 +100,7 @@ namespace RayTracingLearning
 
         private Color GetColorForSphere(Ray ray, Vector3 center, float radius)
         {
-            Sphere sphere = new Sphere(center, radius);
+            Sphere sphere = new Sphere(null, center, radius);
             
             if (sphere.IsHit(ray))
             {
@@ -113,7 +113,7 @@ namespace RayTracingLearning
         private Color GetNormalColorForSphere(Ray ray, Vector3 center, float radius)
         {
             HitInfo hitInfo;
-            Sphere sphere = new Sphere(center, radius);
+            Sphere sphere = new Sphere(null, center, radius);
             
             if (sphere.GetHitInfo(ray, out hitInfo, 0, float.MaxValue))
             {

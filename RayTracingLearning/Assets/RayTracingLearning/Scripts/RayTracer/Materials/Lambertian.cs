@@ -1,6 +1,6 @@
 using RayTracingLearning.RayTracer.Math;
 
-namespace RayTracingLearning.RayTracer.Material
+namespace RayTracingLearning.RayTracer.Materials
 {
     public class Lambertian : Material
     {
