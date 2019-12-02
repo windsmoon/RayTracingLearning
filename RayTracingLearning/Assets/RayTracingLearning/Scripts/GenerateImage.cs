@@ -4,12 +4,14 @@ using UnityEngine;
 using UnityEngine.UI;
 using RayTracingLearning.RayTracer;
 using RayTracingLearning.RayTracer.Geometries;
+using RayTracingLearning.RayTracer.Materials;
 using RayTracingLearning.RayTracer.Math;
 using Ray = RayTracingLearning.RayTracer.Ray;
 using Vector3 = RayTracingLearning.RayTracer.Math.Vector3;
 using Camera = RayTracingLearning.RayTracer.Camera;
 using Random = System.Random;
-using Color = UnityEngine.Color;
+using Color = RayTracingLearning.RayTracer.Color;
+using Material = RayTracingLearning.RayTracer.Materials.Material;
 
 namespace RayTracingLearning
 {
@@ -36,8 +38,10 @@ namespace RayTracingLearning
             //Vector3 center = new Vector3(0, 0, 0);
             //Vector3 lowLeftCorner = new Vector3(-2, -1, 1); // depth : 50, z : 1
             Camera camera = new Camera(new Vector3(0f, 0f, 0f), 4f, 2f, 1f);
-            sphere1 = new Sphere(null, new Vector3(0, 0, 1f), 0.5f);
-            sphere2 = new Sphere(null, new Vector3(0,-100.5f,1f), 100f);
+            Material lambertian1 = new Lambertian(new Color(0.5f, 0.5f, 0.5f));
+            Material lambertian2 = new Lambertian(new Color(0.5f, 0.5f, 0.5f));
+            sphere1 = new Sphere(lambertian1, new Vector3(0, 0, 1f), 0.5f);
+            sphere2 = new Sphere(lambertian2, new Vector3(0,-100.5f,1f), 100f);
             sphereList = new List<Geometry>() {sphere1, sphere2};
 
             for (int i = 0; i < texture.width; ++i)
@@ -45,11 +49,10 @@ namespace RayTracingLearning
                 for (int j = texture.height - 1; j >= 0; --j)
                 {
                     Color color = GetColor(camera, texture, i, j);
-                    color.r = (float)Math.Sqrt(color.r);
-                    color.g = (float)Math.Sqrt(color.g);
-                    color.b = (float)Math.Sqrt(color.b);
-                    color.a = 1;
-                    texture.SetPixel(i, j, color);
+                    color.R = (float)Math.Sqrt(color.R);
+                    color.G = (float)Math.Sqrt(color.G);
+                    color.B = (float)Math.Sqrt(color.B);
+                    texture.SetPixel(i, j, new UnityEngine.Color(color.R, color.G, color.B, 1f));
                 }
             }
 
@@ -104,7 +107,7 @@ namespace RayTracingLearning
             
             if (sphere.IsHit(ray))
             {
-                return Color.red;
+                return new Color(1f, 0f, 0f, 1f);
             }
 
             return GetColorForBackground(ray);
@@ -141,8 +144,10 @@ namespace RayTracingLearning
         {
             if (Geometry.GetHitInfo(ray, sphereList, out HitInfo hitInfo))
             {
-                Vector3 point = hitInfo.HitPoint + hitInfo.Normal + RandomUtility.RandomInSphere(1);
-                return 0.5f * GetTwoSphereDiffuse(new Ray(hitInfo.HitPoint, point - hitInfo.HitPoint));
+                //Ray scatteredRay = hitInfo.Geometry.ma
+                //Ray reflectedRay = hitInfo.Geometry.GetReflectedRay(hitInfo.RayIn, hitInfo);
+                //Vector3 point = hitInfo.HitPoint + hitInfo.Normal + RandomUtility.RandomInSphere(1);
+                return hitInfo.Attenuation * GetTwoSphereDiffuse(hitInfo.RayReflected);
             }
             
             return GetColorForBackground(ray);

@@ -68,6 +68,11 @@ namespace RayTracingLearning.RayTracer
         {
             return new Color(value1.R / scale, value1.G / scale, value1.B / scale); 
         }
+
+        public static Color Lerp(Color start, Color end, float t)
+        {
+            return start * (1 - t) + end * t;
+        }
         #endregion
     }
 }

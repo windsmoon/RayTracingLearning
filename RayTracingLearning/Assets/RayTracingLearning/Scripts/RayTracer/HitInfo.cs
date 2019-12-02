@@ -9,17 +9,10 @@ namespace RayTracingLearning.RayTracer
         public float DistanceFormRayOrigin;
         public Vector3 HitPoint;
         public Vector3 Normal;
+        public Ray RayIn;
         public Geometry Geometry;
-        #endregion
-
-        #region constructors
-        public HitInfo(float distanceFormRayOrigin, Vector3 hitPoint, Vector3 normal, Geometry geometry)
-        {
-            this.DistanceFormRayOrigin = distanceFormRayOrigin;
-            this.HitPoint = hitPoint;
-            this.Normal = normal;
-            this.Geometry = geometry;
-        }
+        public Color Attenuation;
+        public Ray RayReflected;
         #endregion
     }
 }

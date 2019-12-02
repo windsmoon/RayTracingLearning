@@ -19,22 +19,22 @@ namespace RayTracingLearning.RayTracer.Geometries
         #endregion
         
         #region methods
-        public override bool IsHit(Ray ray)
+        public override bool IsHit(Ray rayIn)
         {
-            Vector3 oc = ray.Origin - center;
-            float a = Vector3.Dot(ray.Direction, ray.Direction);
-            float b = 2f * Vector3.Dot(oc, ray.Direction);
+            Vector3 oc = rayIn.Origin - center;
+            float a = Vector3.Dot(rayIn.Direction, rayIn.Direction);
+            float b = 2f * Vector3.Dot(oc, rayIn.Direction);
             float c = Vector3.Dot(oc, oc) - radius * radius;
             float discriminant = b * b - 4f * a * c;
             return discriminant > 0;
             return false;
         }
         
-        public override bool GetHitInfo(Ray ray, out HitInfo hitInfo, float tMin, float tMax)
+        public override bool GetHitInfo(Ray rayIn, out HitInfo hitInfo, float tMin, float tMax)
         {
-            Vector3 oc = ray.Origin - center;
-            float a = Vector3.Dot(ray.Direction, ray.Direction);
-            float b = Vector3.Dot(oc, ray.Direction); // eliminated 2
+            Vector3 oc = rayIn.Origin - center;
+            float a = Vector3.Dot(rayIn.Direction, rayIn.Direction);
+            float b = Vector3.Dot(oc, rayIn.Direction); // eliminated 2
             float c = Vector3.Dot(oc, oc) - radius * radius;
             float discriminant = b * b - a * c; // eliminated 2
             bool isHit = discriminant > 0f;
@@ -46,10 +46,14 @@ namespace RayTracingLearning.RayTracer.Geometries
                 if (IsValidT(t, tMin, tMax))
                 {
                     hitInfo = new HitInfo();
-                    hitInfo.HitPoint = ray.Origin + t * ray.Direction;
+                    hitInfo.HitPoint = rayIn.Origin + t * rayIn.Direction;
                     hitInfo.DistanceFormRayOrigin = t;
                     hitInfo.Normal = (hitInfo.HitPoint - center) / radius; // do not have to normalized, just use this method
                     hitInfo.Geometry = this;
+                    hitInfo.RayIn = rayIn;
+                    Ray rayReflected = material.GetReflectedRay(rayIn, hitInfo);
+                    hitInfo.RayReflected = rayReflected;
+                    hitInfo.Attenuation = material.GetAttenuation(rayIn, hitInfo);
                     return true;
                 }
                 
@@ -58,10 +62,14 @@ namespace RayTracingLearning.RayTracer.Geometries
                 if (IsValidT(t, tMin, tMax))
                 {
                     hitInfo = new HitInfo();
-                    hitInfo.HitPoint = ray.Origin + t * ray.Direction;
+                    hitInfo.HitPoint = rayIn.Origin + t * rayIn.Direction;
                     hitInfo.DistanceFormRayOrigin = t;
                     hitInfo.Normal = (hitInfo.HitPoint - center) / radius; // do not have to normalized, just use this method
                     hitInfo.Geometry = this;
+                    hitInfo.RayIn = rayIn;
+                    Ray rayReflected = material.GetReflectedRay(rayIn, hitInfo);
+                    hitInfo.RayReflected = rayReflected;
+                    hitInfo.Attenuation = material.GetAttenuation(rayIn, hitInfo);
                     return true;
                 }
             }
