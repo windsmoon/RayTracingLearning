@@ -85,6 +85,11 @@ namespace RayTracingLearning.RayTracer.Math
             temp.Normalize();
             return temp;
         }
+        
+        public float GetSquaredLength()
+        {
+            return Vector3.Dot(this, this);
+        }
         #endregion
     }
 }

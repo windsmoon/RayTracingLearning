@@ -6,6 +6,7 @@ using RayTracingLearning.RayTracer;
 using RayTracingLearning.RayTracer.Geometries;
 using RayTracingLearning.RayTracer.Materials;
 using RayTracingLearning.RayTracer.Math;
+using UnityEditor;
 using Ray = RayTracingLearning.RayTracer.Ray;
 using Vector3 = RayTracingLearning.RayTracer.Math.Vector3;
 using Camera = RayTracingLearning.RayTracer.Camera;
@@ -22,8 +23,14 @@ namespace RayTracingLearning
         private bool isUseAA = false;
         [SerializeField]
         private int aaSampleCount = 100;
+        [SerializeField]
+        private int maxReflectCount = 50;
+        [SerializeField, Range(0f, 1f)]
+        private float globalMetalFuzziness = 1f;
         private Sphere sphere1;
         private Sphere sphere2;
+        private Sphere sphere3;
+        private Sphere sphere4;
         private List<Geometry> sphereList;
         #endregion
         
@@ -32,18 +39,22 @@ namespace RayTracingLearning
         private void Generate()
         {
             // build the world, width : 200, height : 100, depth : 100
-            Texture2D texture = new Texture2D(200, 100);
+            Texture2D texture = new Texture2D(1920, 1080);
             //Vector3 horizontalLength = new Vector3(4, 0, 0); // width : 200
             //Vector3 verticalLength = new Vector3(0, 2, 0); // height : 100
             //Vector3 center = new Vector3(0, 0, 0);
             //Vector3 lowLeftCorner = new Vector3(-2, -1, 1); // depth : 50, z : 1
             Camera camera = new Camera(new Vector3(0f, 0f, 0f), 4f, 2f, 1f);
-            Material lambertian1 = new Lambertian(new Color(0.5f, 0.5f, 0.5f));
-            Material lambertian2 = new Lambertian(new Color(0.5f, 0.5f, 0.5f));
-            sphere1 = new Sphere(lambertian1, new Vector3(0, 0, 1f), 0.5f);
-            sphere2 = new Sphere(lambertian2, new Vector3(0,-100.5f,1f), 100f);
-            sphereList = new List<Geometry>() {sphere1, sphere2};
-
+            Material lambertian1 = new Lambertian(new Color(0.8f, 0.3f, 0.3f));
+            Material lambertian2 = new Lambertian(new Color(0.8f, 0.8f, 0f));
+            Material metal1 = new Metal(new Color(0.8f, 0.6f, 0.2f), 1f * globalMetalFuzziness);
+            Material metal2 = new Metal(new Color(0.8f, 0.8f, 0.8f), 0.3f * globalMetalFuzziness);
+            sphere1 = new Sphere(lambertian1, new Vector3(0f, 0f, 1f), 0.5f);
+            sphere2 = new Sphere(lambertian2, new Vector3(0f,-100.5f,1f), 100f);
+            sphere3 = new Sphere(metal1, new Vector3(1f,0f,1f), 0.5f);
+            sphere4 = new Sphere(metal2, new Vector3(-1,0,1f), 0.5f);
+            sphereList = new List<Geometry>() {sphere1, sphere2, sphere3, sphere4};
+            
             for (int i = 0; i < texture.width; ++i)
             {
                 for (int j = texture.height - 1; j >= 0; --j)
@@ -60,7 +71,7 @@ namespace RayTracingLearning
             texture.Apply();
             GetComponent<RawImage>().texture = texture;
         }
-
+        
         private Color GetColor(Camera camera, Texture texture, int x, int y)
         {
             if (isUseAA == false)
@@ -92,7 +103,7 @@ namespace RayTracingLearning
             //return GetColorForSphere(ray, new Vector3(0f, 0f, 1f), 0.5f);
             //return GetNormalColorForSphere(ray, new Vector3(0f, 0f, 1f), 0.5f);
             //return GetTwoSphereNormalColorForSphere(ray);
-            return GetTwoSphereDiffuse(ray);
+            return GetTwoSphereDiffuse(ray, 0);
         }
 
         private Color GetColorForBackground(Ray ray)
@@ -140,14 +151,22 @@ namespace RayTracingLearning
             return GetColorForBackground(ray);
         }
 
-        private Color GetTwoSphereDiffuse(Ray ray)
+        private Color GetTwoSphereDiffuse(Ray ray, int reflectCount)
         {
             if (Geometry.GetHitInfo(ray, sphereList, out HitInfo hitInfo))
             {
+                if (hitInfo.hasReflectedRay && reflectCount <= maxReflectCount)
+                {
+                    return hitInfo.Attenuation * GetTwoSphereDiffuse(hitInfo.RayReflected, reflectCount + 1);
+                }
+
+                else
+                {
+                    return new Color(0f, 0f, 0f);
+                }
                 //Ray scatteredRay = hitInfo.Geometry.ma
                 //Ray reflectedRay = hitInfo.Geometry.GetReflectedRay(hitInfo.RayIn, hitInfo);
                 //Vector3 point = hitInfo.HitPoint + hitInfo.Normal + RandomUtility.RandomInSphere(1);
-                return hitInfo.Attenuation * GetTwoSphereDiffuse(hitInfo.RayReflected);
             }
             
             return GetColorForBackground(ray);

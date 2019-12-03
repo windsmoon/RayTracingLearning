@@ -13,6 +13,7 @@ namespace RayTracingLearning.RayTracer
         public Geometry Geometry;
         public Color Attenuation;
         public Ray RayReflected;
+        public bool hasReflectedRay;
         #endregion
     }
 }

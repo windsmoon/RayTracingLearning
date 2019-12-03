@@ -51,9 +51,19 @@ namespace RayTracingLearning.RayTracer.Geometries
                     hitInfo.Normal = (hitInfo.HitPoint - center) / radius; // do not have to normalized, just use this method
                     hitInfo.Geometry = this;
                     hitInfo.RayIn = rayIn;
-                    Ray rayReflected = material.GetReflectedRay(rayIn, hitInfo);
-                    hitInfo.RayReflected = rayReflected;
-                    hitInfo.Attenuation = material.GetAttenuation(rayIn, hitInfo);
+                    
+                    if (material.GetReflectedRay(rayIn, hitInfo, out Ray rayOut))
+                    {
+                        hitInfo.Attenuation = material.GetAttenuation(rayIn, hitInfo);
+                        hitInfo.hasReflectedRay = true;
+                        hitInfo.RayReflected = rayOut;
+                    }
+
+                    else
+                    {
+                        hitInfo.hasReflectedRay = true;
+                    }
+                    
                     return true;
                 }
                 
@@ -67,9 +77,19 @@ namespace RayTracingLearning.RayTracer.Geometries
                     hitInfo.Normal = (hitInfo.HitPoint - center) / radius; // do not have to normalized, just use this method
                     hitInfo.Geometry = this;
                     hitInfo.RayIn = rayIn;
-                    Ray rayReflected = material.GetReflectedRay(rayIn, hitInfo);
-                    hitInfo.RayReflected = rayReflected;
-                    hitInfo.Attenuation = material.GetAttenuation(rayIn, hitInfo);
+                    
+                    if (material.GetReflectedRay(rayIn, hitInfo, out Ray rayOut))
+                    {
+                        hitInfo.Attenuation = material.GetAttenuation(rayIn, hitInfo);
+                        hitInfo.hasReflectedRay = true;
+                        hitInfo.RayReflected = rayOut;
+                    }
+
+                    else
+                    {
+                        hitInfo.hasReflectedRay = false;
+                    }
+                    
                     return true;
                 }
             }

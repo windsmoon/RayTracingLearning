@@ -18,10 +18,19 @@ namespace RayTracingLearning.RayTracer.Math
         #region methods
         public static Vector3 RandomInSphere(float radius)
         {
-            Vector3 direction = new Vector3(Random01(), Random01(), Random01());
-            direction = direction * 2 - new Vector3(-1f, -1f, -1f);
+            /*Vector3 direction = new Vector3(Random01(), Random01(), Random01());
+            direction = direction * 2 - new Vector3(1f, 1f, 1f);
             direction.Normalize();
-            return direction * Random(0, radius);
+            return direction * Random(0, radius);*/
+
+            Vector3 direction;
+
+            do
+            {
+                direction = 2f * new Vector3(Random01(), Random01(), Random01()) - new Vector3(1f, 1f, 1f);
+            } while (direction.GetSquaredLength() >= 1);
+
+            return direction;
         }
 
         public static float Random01()
