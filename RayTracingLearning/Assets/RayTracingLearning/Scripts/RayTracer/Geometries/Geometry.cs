@@ -47,7 +47,7 @@ namespace RayTracingLearning.RayTracer.Geometries
         {
             float tMax = float.MaxValue;
             bool isHitAnything = false;
-            hitInfo = new HitInfo();
+            HitInfo tempInfo = default(HitInfo);
             
             foreach (Geometry geometry in geometryList)
             {
@@ -55,9 +55,11 @@ namespace RayTracingLearning.RayTracer.Geometries
                 {
                     tMax = hitInfo.DistanceFormRayOrigin;
                     isHitAnything = true;
+                    tempInfo = hitInfo;
                 }
             }
-
+            
+            hitInfo = tempInfo;
             return isHitAnything;
         }
         #endregion
