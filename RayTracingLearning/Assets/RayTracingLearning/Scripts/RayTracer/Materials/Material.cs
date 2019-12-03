@@ -16,7 +16,7 @@ namespace RayTracingLearning.RayTracer.Materials
         #endregion
         
         #region methods
-        public abstract Ray GetReflectedRay(Ray rayIn, HitInfo hitInfo);
+        public abstract bool GetReflectedRay(Ray rayIn, HitInfo hitInfo, out Ray rayOut);
         public abstract Color GetAttenuation(Ray rayIn, HitInfo hitInfo);
         #endregion
     }

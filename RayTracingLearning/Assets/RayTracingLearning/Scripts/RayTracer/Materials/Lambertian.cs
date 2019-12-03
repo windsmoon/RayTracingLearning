@@ -12,7 +12,7 @@ namespace RayTracingLearning.RayTracer.Materials
         #endregion
         
         #region methods
-        public override Ray GetReflectedRay(Ray rayIn, HitInfo hitInfo)
+        public override bool GetReflectedRay(Ray rayIn, HitInfo hitInfo, out Ray rayOut)
         {
             /*vec3 target = rec.p + rec.normal + random_in_unit_sphere();
             scattered = ray(rec.p, target-rec.p);
@@ -21,8 +21,8 @@ namespace RayTracingLearning.RayTracer.Materials
 
             //Vector3 target = hitInfo.HitPoint + hitInfo.Normal + RandomUtility.RandomInSphere(1f);
             //Ray scatteredRay = new Ray(hitInfo.HitPoint, target - hitInfo.HitPoint);
-            Ray scatteredRay = new Ray(hitInfo.HitPoint, hitInfo.Normal + RandomUtility.RandomInSphere(1f)); // combine above two line code
-            return scatteredRay;
+            rayOut = new Ray(hitInfo.HitPoint, hitInfo.Normal + RandomUtility.RandomInSphere(1f)); // combine above two line code
+            return true;
         }
 
         public override Color GetAttenuation(Ray rayIn, HitInfo hitInfo)
