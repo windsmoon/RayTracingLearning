@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.UI;
 using RayTracingLearning.RayTracer;
@@ -12,6 +13,7 @@ using Vector3 = RayTracingLearning.RayTracer.Math.Vector3;
 using Camera = RayTracingLearning.RayTracer.Camera;
 using Random = System.Random;
 using Color = RayTracingLearning.RayTracer.Color;
+using Debug = UnityEngine.Debug;
 using Material = RayTracingLearning.RayTracer.Materials.Material;
 
 namespace RayTracingLearning
@@ -29,6 +31,8 @@ namespace RayTracingLearning
         private float globalMetalFuzziness = 1f;
         [SerializeField]
         private Vector2Int resolution = new Vector2Int(200, 100);
+        [SerializeField]
+        private float updateInterval = 0f;
         private Sphere sphere1;
         private Sphere sphere2;
         private Sphere sphere3;
@@ -39,24 +43,32 @@ namespace RayTracingLearning
         private int currentRow;
         private int currentCol;
         private bool isGenerating = false;
+        private Stopwatch stopwatch;
+        private float timer;
         #endregion
         
         #region unity methods
         private void Update()
         {
+            
             if (isGenerating == false)
             {
                 return;
             }
             
+            timer += Time.deltaTime;
             Color color = GetColor(camera, texture, currentCol, currentRow);
             color.R = (float)Math.Sqrt(color.R);
             color.G = (float)Math.Sqrt(color.G);
             color.B = (float)Math.Sqrt(color.B);
             texture.SetPixel(currentCol, currentRow, new UnityEngine.Color(color.R, color.G, color.B, 1f));
-            Debug.Log("generate pixel : (" + currentCol + ", " + currentRow + ") finish");
             GetNextRowCol();
-            texture.Apply();
+
+            if (timer >= updateInterval)
+            {
+                texture.Apply();
+                timer = 0f;
+            }
         }
 
         #endregion
@@ -86,8 +98,12 @@ namespace RayTracingLearning
             GetComponent<RawImage>().texture = texture;
             currentRow = resolution.y - 1;
             currentCol = 0;
+            timer = 0f;
             isGenerating = true;
             Debug.Log("generate start");
+            stopwatch = new Stopwatch();
+            stopwatch.Reset();
+            stopwatch.Start();
             
             
         //     for (int i = 0; i < texture.width; ++i)
@@ -115,7 +131,10 @@ namespace RayTracingLearning
                 if (currentRow == -1)
                 {
                     isGenerating = false;
+                    stopwatch.Stop();
+                    texture.Apply();
                     Debug.Log("generate finish");
+                    EditorUtility.DisplayDialog("ray tracer", "ray tracer used time : " + stopwatch.Elapsed.TotalSeconds.ToString(), "confirm");
                 }
             }
         }
