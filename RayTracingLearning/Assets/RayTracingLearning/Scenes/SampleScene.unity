@@ -482,8 +482,8 @@ MonoBehaviour:
   aaSampleCount: 100
   maxReflectCount: 50
   globalMetalFuzziness: 1
-  resolution: {x: 200, y: 100}
-  updateInterval: 5
+  resolution: {x: 1920, y: 1080}
+  updateInterval: 0
 --- !u!222 &1319523297
 CanvasRenderer:
   m_ObjectHideFlags: 0
