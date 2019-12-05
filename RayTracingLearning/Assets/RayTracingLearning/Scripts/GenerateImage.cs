@@ -143,8 +143,6 @@ namespace RayTracingLearning
             timer = 0f;
             finishPixelCount = 0;
             tempTextureColorDataQueue = new ConcurrentQueue<TextureColorData>();
-            ThreadPool.SetMaxThreads(threadCount, threadCount);
-            ThreadPool.SetMinThreads(threadCount, threadCount);
             int perThreadRowCount = resolution.y / threadCount;
             threadList = new List<Thread>(threadCount + 1);
 
@@ -154,11 +152,10 @@ namespace RayTracingLearning
                 threadData.StartRow = i * perThreadRowCount;
                 threadData.EndRow = threadData.StartRow + perThreadRowCount - 1;
                 threadData.ID = i;
-                ThreadPool.QueueUserWorkItem(new WaitCallback(StartThread), threadData);
-                //Thread thread = new Thread(StartThread);
-                //threadList.Add(thread);
-                //thread.IsBackground = true;
-                //thread.Start(threadData);
+                Thread thread = new Thread(StartThread);
+                threadList.Add(thread);
+                thread.IsBackground = true;
+                thread.Start(threadData);
             }
 
             int leftRowCount = resolution.y % threadCount;
@@ -169,11 +166,10 @@ namespace RayTracingLearning
                 threadData.StartRow = resolution.y - leftRowCount;
                 threadData.EndRow = resolution.y - 1;
                 threadData.ID = threadCount;
-                ThreadPool.QueueUserWorkItem(new WaitCallback(StartThread), threadData);
-//                Thread thread = new Thread(StartThread);
-//                threadList.Add(thread);
-//                thread.IsBackground = true;
-//                thread.Start(threadData);
+                Thread thread = new Thread(StartThread);
+                threadList.Add(thread);
+                thread.IsBackground = true;
+                thread.Start(threadData);
             }
             
             isGenerating = true;
