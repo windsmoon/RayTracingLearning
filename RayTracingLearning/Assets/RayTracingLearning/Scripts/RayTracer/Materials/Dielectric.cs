@@ -26,19 +26,20 @@ namespace RayTracingLearning.RayTracer.Materials
             throw new System.NotImplementedException();
         }
         
-        private bool Refract(Ray rayIn, HitInfo hitInfo, out Ray rayOut)
-        {
-            float cosInAngle = Vector3.Dot(rayIn.Direction, -1 * hitInfo.Normal);
-            float squaredSinInAngle = 1 - cosInAngle * cosInAngle;
-            float squaredCosIOutAngle = 1 - refractRatio * refractRatio * squaredSinInAngle;
-
-            if (squaredCosIOutAngle > 0) // todo how can be less than 0 ?
-            {
-                
-            }
-            
-            return false;
-        }
+//        private bool Refract(Ray rayIn, HitInfo hitInfo, out Ray rayOut)
+//        {
+//            float cosInAngle = Vector3.Dot(rayIn.Direction, -1 * hitInfo.Normal);
+//            float squaredSinInAngle = 1 - cosInAngle * cosInAngle;
+//            float squaredCosIOutAngle = 1 - refractRatio * refractRatio * squaredSinInAngle;
+//
+//            if (squaredCosIOutAngle > 0) // todo how can be less than 0 ?
+//            {
+//                
+//            }
+//            
+//            rayOut = new Ray();
+//            return false;
+//        }
         #endregion
     }
 }
