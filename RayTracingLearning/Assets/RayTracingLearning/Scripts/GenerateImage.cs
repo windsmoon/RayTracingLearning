@@ -73,13 +73,23 @@ namespace RayTracingLearning
             if (timer >= updateInterval)
             {
                 TextureColorData textureColorData;
-
-                while (tempTextureColorDataQueue.TryDequeue(out textureColorData))
+                int count = tempTextureColorDataQueue.Count;
+                int counter = 0;
+                
+                while (tempTextureColorDataQueue.TryPeek(out textureColorData) && counter <= count)
                 {
+                    tempTextureColorDataQueue.TryDequeue(out textureColorData);
                     Color color = textureColorData.color;
                     texture.SetPixel(textureColorData.Col, textureColorData.row, new UnityEngine.Color(color.R, color.G, color.B, 1f));
-                    texture.Apply();
+                    ++count;
                     ++finishPixelCount;
+                }
+                
+                timer = 0f;
+
+                if (count > 0)
+                {
+                    texture.Apply();
                     
                     if (finishPixelCount == resolution.x * resolution.y)
                     {
@@ -88,11 +98,12 @@ namespace RayTracingLearning
                         Debug.Log("generate finish");
                         EditorUtility.DisplayDialog("ray tracer", "ray tracer used time : " + stopwatch.Elapsed.TotalSeconds.ToString(), "confirm");
                         OnDestroy();
+                        //texture.EncodeToPNG();
                     }
                 }
-                
-                timer = 0f;
             }
+            
+            texture.Apply();
         }
 
         private void OnDestroy()
