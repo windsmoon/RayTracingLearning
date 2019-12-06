@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.IO;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
@@ -98,7 +99,13 @@ namespace RayTracingLearning
                         Debug.Log("generate finish");
                         EditorUtility.DisplayDialog("ray tracer", "ray tracer used time : " + stopwatch.Elapsed.TotalSeconds.ToString(), "confirm");
                         OnDestroy();
-                        //texture.EncodeToPNG();
+                        byte[] bytes = texture.EncodeToPNG();
+                        FileStream fs = new FileStream("Assets/Pictures/" + DateTime.Now.Millisecond + ".png", FileMode.Create);
+                        fs.Write(bytes, 0, bytes.Length);
+                        fs.Close();
+                        #if UNITY_EDITOR
+                        AssetDatabase.SaveAssets();
+                        #endif
                     }
                 }
             }
