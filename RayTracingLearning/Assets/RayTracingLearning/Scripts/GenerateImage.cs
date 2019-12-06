@@ -87,11 +87,7 @@ namespace RayTracingLearning
                         stopwatch.Stop();
                         Debug.Log("generate finish");
                         EditorUtility.DisplayDialog("ray tracer", "ray tracer used time : " + stopwatch.Elapsed.TotalSeconds.ToString(), "confirm");
-                        
-                        foreach (Thread thread in threadList)
-                        {
-                            thread.Abort();
-                        }
+                        OnDestroy();
                     }
                 }
                 
@@ -118,6 +114,7 @@ namespace RayTracingLearning
         [ContextMenu("Generate Image")]
         private void Generate()
         {
+            OnDestroy();
             Debug.Log("generate start");
             // build the world, width : 200, height : 100, depth : 100
             texture = new Texture2D(resolution.x, resolution.y);
