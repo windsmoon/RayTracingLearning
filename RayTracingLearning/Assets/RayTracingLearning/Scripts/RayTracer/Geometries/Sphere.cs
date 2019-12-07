@@ -52,7 +52,7 @@ namespace RayTracingLearning.RayTracer.Geometries
                     hitInfo.Geometry = this;
                     hitInfo.RayIn = rayIn;
                     
-                    if (material.GetReflectedRay(rayIn, hitInfo, out Ray rayOut))
+                    if (material.GetScatteredRay(rayIn, hitInfo, out Ray rayOut))
                     {
                         hitInfo.Attenuation = material.GetAttenuation(rayIn, hitInfo);
                         hitInfo.hasReflectedRay = true;
@@ -78,7 +78,7 @@ namespace RayTracingLearning.RayTracer.Geometries
                     hitInfo.Geometry = this;
                     hitInfo.RayIn = rayIn;
                     
-                    if (material.GetReflectedRay(rayIn, hitInfo, out Ray rayOut))
+                    if (material.GetScatteredRay(rayIn, hitInfo, out Ray rayOut))
                     {
                         hitInfo.Attenuation = material.GetAttenuation(rayIn, hitInfo);
                         hitInfo.hasReflectedRay = true;

@@ -1,3 +1,4 @@
+using System;
 using RayTracingLearning.RayTracer.Math;
 
 namespace RayTracingLearning.RayTracer.Materials
@@ -5,13 +6,18 @@ namespace RayTracingLearning.RayTracer.Materials
     public class Dielectric : Material
     {
         #region fields
-        private float refractRatio;
+        private float refractiveIndex; // refractRatio means [out refractive index] / [in refractive index]
         #endregion
     
         #region constructors
-        public Dielectric(Color albedo, float refractRatio) : base(albedo)
+        public Dielectric(Color albedo, float fuzziness, float refractiveIndex) : base(albedo, fuzziness)
         {
-            this.refractRatio = refractRatio;
+            if (refractiveIndex <= 0)
+            {
+                throw new Exception("refraceive Index must be greater than 0");
+            }
+            
+            this.refractiveIndex = refractiveIndex;
         }
         #endregion
 
@@ -21,25 +27,44 @@ namespace RayTracingLearning.RayTracer.Materials
             throw new System.NotImplementedException();
         }
 
-        public override bool GetReflectedRay(Ray rayIn, HitInfo hitInfo, out Ray rayOut)
+        public override bool GetScatteredRay(Ray rayIn, HitInfo hitInfo, out Ray rayOut)
         {
             throw new System.NotImplementedException();
         }
         
-//        private bool Refract(Ray rayIn, HitInfo hitInfo, out Ray rayOut)
-//        {
-//            float cosInAngle = Vector3.Dot(rayIn.Direction, -1 * hitInfo.Normal);
-//            float squaredSinInAngle = 1 - cosInAngle * cosInAngle;
-//            float squaredCosIOutAngle = 1 - refractRatio * refractRatio * squaredSinInAngle;
-//
-//            if (squaredCosIOutAngle > 0) // todo how can be less than 0 ?
-//            {
-//                
-//            }
-//            
-//            rayOut = new Ray();
-//            return false;
-//        }
+        private bool Refract(Ray rayIn, HitInfo hitInfo, out Ray rayOut)
+        {
+            Vector3 outwardNormal; // normal of rayIn side
+            float refractiveIndexInOverOut;
+            float cosIn = Vector3.Dot(rayIn.Direction, hitInfo.Normal);
+
+            if (cosIn > 0) // rayIn come from inside to outside
+            {
+                outwardNormal = -1 * hitInfo.Normal;
+                refractiveIndexInOverOut = refractiveIndex;
+                cosIn = -cosIn;
+            }
+
+            else // rayIn come from outside to inside
+            {
+                outwardNormal = hitInfo.Normal;
+                refractiveIndexInOverOut = 1 / refractiveIndex;
+            } // can not be 0, because intersect only one point will be discarded in hit step
+
+            float squaredSinOut = refractiveIndexInOverOut * refractiveIndexInOverOut * (1 - cosIn * cosIn);
+            float discriminant = 1 - squaredSinOut;
+
+            if (discriminant > 0) // means out angle exist
+            {
+                Vector3 refracted = refractiveIndexInOverOut * (rayIn.Direction - outwardNormal * cosIn) - outwardNormal * (float)System.Math.Sqrt(discriminant);
+                rayOut = new Ray(hitInfo.HitPoint, refracted);
+                return true;
+            }
+
+            rayOut = default(Ray);
+            return false;
+
+        }
         #endregion
     }
 }

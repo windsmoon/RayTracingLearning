@@ -5,13 +5,11 @@ namespace RayTracingLearning.RayTracer.Materials
     public class Metal : Material
     {
         #region fields
-        private float fuzziness;
         #endregion
         
         #region constructors
-        public Metal(Color albedo, float fuzziness ) : base(albedo)
+        public Metal(Color albedo, float fuzziness) : base(albedo, fuzziness)
         {
-            this.fuzziness = fuzziness < 1f ? fuzziness : 1f;
         }
         #endregion
         
@@ -21,19 +19,15 @@ namespace RayTracingLearning.RayTracer.Materials
             return albedo;
         }
 
-        public override bool GetReflectedRay(Ray rayIn, HitInfo hitInfo, out Ray rayOut)
+        public override bool GetScatteredRay(Ray rayIn, HitInfo hitInfo, out Ray rayOut)
         {
-            Vector3 rayInDirection = rayIn.Direction;
-            Vector3 hitNormal = hitInfo.Normal;
-
-            if (Vector3.Dot(rayInDirection, hitNormal) > 0)
+            if (GetReflectedVector(rayIn, hitInfo, out Vector3 reflectedOutVector) == false)
             {
                 rayOut = default(Ray);
-                return false;
+                return false; 
             }
-
-            Vector3 reflectedDirection = rayInDirection - 2 * Vector3.Dot(rayInDirection, hitNormal) * hitNormal;
-            rayOut = new Ray(hitInfo.HitPoint, reflectedDirection + fuzziness * RandomUtility.RandomInSphere(1f));
+            
+            rayOut = new Ray(hitInfo.HitPoint, reflectedOutVector + fuzziness * RandomUtility.RandomInSphere(1f));
             return true;
         }
         #endregion

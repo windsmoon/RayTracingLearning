@@ -6,13 +6,13 @@ namespace RayTracingLearning.RayTracer.Materials
     public class Lambertian : Material
     {
         #region constructors
-        public Lambertian(Color albedo) : base(albedo)
+        public Lambertian(Color albedo) : base(albedo, 0)
         {
         }
         #endregion
         
         #region methods
-        public override bool GetReflectedRay(Ray rayIn, HitInfo hitInfo, out Ray rayOut)
+        public override bool GetScatteredRay(Ray rayIn, HitInfo hitInfo, out Ray rayOut)
         {
             /*vec3 target = rec.p + rec.normal + random_in_unit_sphere();
             scattered = ray(rec.p, target-rec.p);
