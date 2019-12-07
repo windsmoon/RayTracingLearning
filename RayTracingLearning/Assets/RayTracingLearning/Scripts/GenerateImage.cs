@@ -99,13 +99,7 @@ namespace RayTracingLearning
                         Debug.Log("generate finish");
                         EditorUtility.DisplayDialog("ray tracer", "ray tracer used time : " + stopwatch.Elapsed.TotalSeconds.ToString(), "confirm");
                         OnDestroy();
-                        byte[] bytes = texture.EncodeToPNG();
-                        FileStream fs = new FileStream("Assets/Pictures/" + DateTime.Now.Millisecond + ".png", FileMode.Create);
-                        fs.Write(bytes, 0, bytes.Length);
-                        fs.Close();
-                        #if UNITY_EDITOR
-                        AssetDatabase.SaveAssets();
-                        #endif
+                        SaveToDisk();
                     }
                 }
             }
@@ -204,8 +198,28 @@ namespace RayTracingLearning
         //             // texture.SetPixel(i, j, new UnityEngine.Color(color.R, color.G, color.B, 1f));
         //         }
         //     }
-         }
+        }
 
+        private void SaveToDisk()
+        {
+            string resolutionName = resolution.x.ToString() + "x" + resolution.y.ToString();
+            string folder = "Assets/Pictures/" + resolutionName + "/";
+            
+            if (System.IO.Directory.Exists(folder) == false)
+            {
+                Directory.CreateDirectory(folder);
+            }
+            
+            byte[] bytes = texture.EncodeToPNG();
+            TimeSpan ts = DateTime.Now - new DateTime(1970, 1, 1, 0, 0, 0, 0);
+            FileStream fs = new FileStream(folder + ts.TotalMilliseconds.ToString() + ".png", FileMode.Create);
+            fs.Write(bytes, 0, bytes.Length);
+            fs.Close();
+            #if UNITY_EDITOR
+            AssetDatabase.Refresh(ImportAssetOptions.Default);
+            #endif
+        }
+        
         private void GetNextRowCol()
         {
             ++currentCol;
