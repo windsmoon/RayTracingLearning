@@ -56,6 +56,13 @@ namespace RayTracingLearning.RayTracer.Materials
                 return true;
             }
 
+            // todo 
+//            if (GetReflectedVector(rayIn, hitInfo, out Vector3 reflectedVector))
+//            {   
+//                rayOut = new Ray(hitInfo.HitPoint, reflectedVector + fuzziness * RandomUtility.RandomInSphere(1f));
+//                return true;
+//            }
+            
             rayOut = default(Ray);
             return false;
         }
