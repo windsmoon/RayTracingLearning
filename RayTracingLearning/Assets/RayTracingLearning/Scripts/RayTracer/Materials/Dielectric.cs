@@ -24,15 +24,10 @@ namespace RayTracingLearning.RayTracer.Materials
         #region methods
         public override Color GetAttenuation(Ray rayIn, HitInfo hitInfo)
         {
-            throw new System.NotImplementedException();
+            return albedo;
         }
 
         public override bool GetScatteredRay(Ray rayIn, HitInfo hitInfo, out Ray rayOut)
-        {
-            throw new System.NotImplementedException();
-        }
-        
-        private bool Refract(Ray rayIn, HitInfo hitInfo, out Ray rayOut)
         {
             Vector3 outwardNormal; // normal of rayIn side
             float refractiveIndexInOverOut;
@@ -63,7 +58,6 @@ namespace RayTracingLearning.RayTracer.Materials
 
             rayOut = default(Ray);
             return false;
-
         }
         #endregion
     }

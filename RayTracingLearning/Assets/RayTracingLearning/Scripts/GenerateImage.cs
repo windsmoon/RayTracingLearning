@@ -135,14 +135,15 @@ namespace RayTracingLearning
             //Vector3 center = new Vector3(0, 0, 0);
             //Vector3 lowLeftCorner = new Vector3(-2, -1, 1); // depth : 50, z : 1
             camera = new Camera(new Vector3(0f, 0f, 0f), 4f, 2f, 1f);
-            Material lambertian1 = new Lambertian(new Color(0.8f, 0.3f, 0.3f));
+            Material lambertian1 = new Lambertian(new Color(0.1f, 0.2f, 0.5f));
             Material lambertian2 = new Lambertian(new Color(0.8f, 0.8f, 0f));
-            Material metal1 = new Metal(new Color(0.8f, 0.6f, 0.2f), 1f * globalMetalFuzziness);
-            Material metal2 = new Metal(new Color(0.8f, 0.8f, 0.8f), 0.3f * globalMetalFuzziness);
+            Material metal1 = new Metal(new Color(0.8f, 0.6f, 0.2f), 0f * globalMetalFuzziness);
+//            Material metal2 = new Metal(new Color(0.8f, 0.8f, 0.8f), 0.3f * globalMetalFuzziness);
+            Material dielectric1 = new Dielectric(new Color(1f, 1f, 1f), 0f, 1.5f);
             sphere1 = new Sphere(lambertian1, new Vector3(0f, 0f, 1f), 0.5f);
             sphere2 = new Sphere(lambertian2, new Vector3(0f,-100.5f,1f), 100f);
             sphere3 = new Sphere(metal1, new Vector3(1f,0f,1f), 0.5f);
-            sphere4 = new Sphere(metal2, new Vector3(-1,0,1f), 0.5f);
+            sphere4 = new Sphere(dielectric1, new Vector3(-1,0,1f), 0.5f);
             sphereList = new List<Geometry>() {sphere1, sphere2, sphere3, sphere4};
             texture.filterMode = FilterMode.Point;
             texture.Apply();
