@@ -27,7 +27,7 @@ namespace RayTracingLearning.RayTracer.Materials
             return albedo;
         }
 
-        public override bool GetScatteredRay(Ray rayIn, HitInfo hitInfo, out Ray rayOut)
+        public override bool TryGetScatteredRay(Ray rayIn, HitInfo hitInfo, out Ray rayOut)
         {
             Vector3 outwardNormal; // normal of rayIn side
             float refractiveIndexInOverOut;
@@ -57,7 +57,7 @@ namespace RayTracingLearning.RayTracer.Materials
                 return true;
             }
             
-            if (GetReflectedVector(rayIn, hitInfo, out Vector3 reflectedVector))
+            if (TryGetReflectedVector(rayIn, hitInfo, out Vector3 reflectedVector))
             {   
                 rayOut = new Ray(hitInfo.HitPoint, reflectedVector + fuzziness * RandomUtility.RandomInSphere(1f));
                 return true;

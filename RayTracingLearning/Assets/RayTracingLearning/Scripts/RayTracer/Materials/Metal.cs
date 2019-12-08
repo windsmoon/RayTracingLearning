@@ -19,9 +19,9 @@ namespace RayTracingLearning.RayTracer.Materials
             return albedo;
         }
 
-        public override bool GetScatteredRay(Ray rayIn, HitInfo hitInfo, out Ray rayOut)
+        public override bool TryGetScatteredRay(Ray rayIn, HitInfo hitInfo, out Ray rayOut)
         {
-            if (GetReflectedVector(rayIn, hitInfo, out Vector3 reflectedOutVector) == false)
+            if (TryGetReflectedVector(rayIn, hitInfo, out Vector3 reflectedOutVector) == false)
             {
                 rayOut = default(Ray);
                 return false; 

@@ -1,3 +1,4 @@
+using System.Runtime;
 using RayTracingLearning.RayTracer.Math;
 
 namespace RayTracingLearning.RayTracer.Materials
@@ -18,10 +19,17 @@ namespace RayTracingLearning.RayTracer.Materials
         #endregion
         
         #region methods
-        public abstract bool GetScatteredRay(Ray rayIn, HitInfo hitInfo, out Ray rayOut);
+        public abstract bool TryGetScatteredRay(Ray rayIn, HitInfo hitInfo, out Ray rayOut);
         public abstract Color GetAttenuation(Ray rayIn, HitInfo hitInfo);
 
-        public bool GetReflectedVector(Ray rayIn, HitInfo hitInfo, out Vector3 rayOutVector)
+        public Vector3 GetReflectedVector(Ray rayIn, HitInfo hitInfo)
+        {
+            Vector3 rayInDirection = rayIn.Direction;
+            Vector3 hitNormal = hitInfo.Normal;
+            return rayInDirection - 2 * Vector3.Dot(rayInDirection, hitNormal) * hitNormal;
+        }
+
+        public bool TryGetReflectedVector(Ray rayIn, HitInfo hitInfo, out Vector3 rayOutVector)
         {
             Vector3 rayInDirection = rayIn.Direction;
             Vector3 hitNormal = hitInfo.Normal;

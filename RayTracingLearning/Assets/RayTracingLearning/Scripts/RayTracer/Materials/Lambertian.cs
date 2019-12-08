@@ -12,7 +12,7 @@ namespace RayTracingLearning.RayTracer.Materials
         #endregion
         
         #region methods
-        public override bool GetScatteredRay(Ray rayIn, HitInfo hitInfo, out Ray rayOut)
+        public override bool TryGetScatteredRay(Ray rayIn, HitInfo hitInfo, out Ray rayOut)
         {
             /*vec3 target = rec.p + rec.normal + random_in_unit_sphere();
             scattered = ray(rec.p, target-rec.p);
