@@ -45,9 +45,7 @@ namespace RayTracingLearning
         private Sphere sphere5;
         private List<Geometry> sphereList;
         private Texture2D texture;
-        private Camera camera;
-        private int currentRow;
-        private int currentCol;
+        private new Camera camera;
         private bool isGenerating = false;
         private Stopwatch stopwatch;
         private float timer;
@@ -65,12 +63,6 @@ namespace RayTracingLearning
             }
             
             timer += Time.deltaTime;
-//            Color color = GetColor(camera, texture, currentCol, currentRow);
-//            color.R = (float)Math.Sqrt(color.R);
-//            color.G = (float)Math.Sqrt(color.G);
-//            color.B = (float)Math.Sqrt(color.B);
-//            texture.SetPixel(currentCol, currentRow, new UnityEngine.Color(color.R, color.G, color.B, 1f));
-//            GetNextRowCol();
 
             if (timer >= updateInterval)
             {
@@ -131,27 +123,11 @@ namespace RayTracingLearning
             Debug.Log("generate start");
             // build the world, width : 200, height : 100, depth : 100
             texture = new Texture2D(resolution.x, resolution.y);
-            //Vector3 horizontalLength = new Vector3(4, 0, 0); // width : 200
-            //Vector3 verticalLength = new Vector3(0, 2, 0); // height : 100
-            //Vector3 center = new Vector3(0, 0, 0);
-            //Vector3 lowLeftCorner = new Vector3(-2, -1, 1); // depth : 50, z : 1
-            camera = new Camera(new Vector3(0f, 0f, 0f), 4f, 2f, 1f);
-            Material lambertian1 = new Lambertian(new Color(0.1f, 0.2f, 0.5f));
-            Material lambertian2 = new Lambertian(new Color(0.8f, 0.8f, 0f));
-            Material metal1 = new Metal(new Color(0.8f, 0.6f, 0.2f), 0f * globalMetalFuzziness);
-//            Material metal2 = new Metal(new Color(0.8f, 0.8f, 0.8f), 0.3f * globalMetalFuzziness);
-            Material dielectric1 = new Dielectric(new Color(1f, 1f, 1f), 0f, 1.5f);
-            sphere1 = new Sphere(lambertian1, new Vector3(0f, 0f, 1f), 0.5f);
-            sphere2 = new Sphere(lambertian2, new Vector3(0f,-100.5f,1f), 100f);
-            sphere3 = new Sphere(metal1, new Vector3(1f,0f,1f), 0.5f);
-            sphere4 = new Sphere(dielectric1, new Vector3(-1f,0f,1f), 0.5f);
-            sphere5 = new Sphere(dielectric1, new Vector3(-1f, 0f, 1f), -0.45f);
-            sphereList = new List<Geometry>() {sphere1, sphere2, sphere3, sphere4};
             texture.filterMode = FilterMode.Point;
             texture.Apply();
             GetComponent<RawImage>().texture = texture;
-            currentRow = resolution.y - 1;
-            currentCol = 0;
+            camera = new Camera(new Vector3(-2f,2f,-1f), new Vector3(0f,0f,1f), 90f, (float)resolution.x / (float)resolution.y);
+            InitSpheres();
             timer = 0f;
             finishPixelCount = 0;
             tempTextureColorDataQueue = new ConcurrentQueue<TextureColorData>();
@@ -188,21 +164,30 @@ namespace RayTracingLearning
             stopwatch = new Stopwatch();
             stopwatch.Reset();
             stopwatch.Start();
-            
-            
-        //     for (int i = 0; i < texture.width; ++i)
-        //     {
-        //         for (int j = texture.height - 1; j >= 0; --j)
-        //         {
-        //             // Color color = GetColor(camera, texture, i, j);
-        //             // color.R = (float)Math.Sqrt(color.R);
-        //             // color.G = (float)Math.Sqrt(color.G);
-        //             // color.B = (float)Math.Sqrt(color.B);
-        //             // texture.SetPixel(i, j, new UnityEngine.Color(color.R, color.G, color.B, 1f));
-        //         }
-        //     }
         }
 
+        private void InitSpheres()
+        {
+            Material lambertian1 = new Lambertian(new Color(0.1f, 0.2f, 0.5f));
+            Material lambertian2 = new Lambertian(new Color(0.8f, 0.8f, 0f));
+            Material metal1 = new Metal(new Color(0.8f, 0.6f, 0.2f), 0f * globalMetalFuzziness);
+//            Material metal2 = new Metal(new Color(0.8f, 0.8f, 0.8f), 0.3f * globalMetalFuzziness);
+            Material dielectric1 = new Dielectric(new Color(1f, 1f, 1f), 0f, 1.5f);
+            sphere1 = new Sphere(lambertian1, new Vector3(0f, 0f, 1f), 0.5f);
+            sphere2 = new Sphere(lambertian2, new Vector3(0f,-100.5f,1f), 100f);
+            sphere3 = new Sphere(metal1, new Vector3(1f,0f,1f), 0.5f);
+            sphere4 = new Sphere(dielectric1, new Vector3(-1f,0f,1f), 0.5f);
+            sphere5 = new Sphere(dielectric1, new Vector3(-1f, 0f, 1f), -0.45f);
+            sphereList = new List<Geometry>() {sphere1, sphere2, sphere3, sphere4};
+            
+//            float raidus = (float)System.Math.Cos(System.Math.PI / 4f);
+//            Material lambertianCamera1 = new Lambertian(new Color(0f, 0f, 1f));
+//            Material lambertianCamera2 = new Lambertian(new Color(1f, 0f, 0f));
+//            Sphere sphereCamera1 = new Sphere(lambertianCamera1, new Vector3(-raidus, 0f, 1f), raidus);
+//            Sphere sphereCamera2 = new Sphere(lambertianCamera2, new Vector3(raidus, 0f, 1f), raidus);
+//            sphereList = new List<Geometry>() {sphereCamera1, sphereCamera2};
+        }
+        
         private void SaveToDisk()
         {
             string resolutionName = resolution.x.ToString() + "x" + resolution.y.ToString();
@@ -221,26 +206,6 @@ namespace RayTracingLearning
             #if UNITY_EDITOR
             AssetDatabase.Refresh(ImportAssetOptions.Default);
             #endif
-        }
-        
-        private void GetNextRowCol()
-        {
-            ++currentCol;
-
-            if (currentCol == resolution.x)
-            {
-                currentCol = 0;
-                --currentRow;
-
-                if (currentRow == -1)
-                {
-                    isGenerating = false;
-                    stopwatch.Stop();
-                    texture.Apply();
-                    Debug.Log("generate finish");
-                    EditorUtility.DisplayDialog("ray tracer", "ray tracer used time : " + stopwatch.Elapsed.TotalSeconds.ToString(), "confirm");
-                }
-            }
         }
 
         private void StartThread(object param)

@@ -95,6 +95,12 @@ namespace RayTracingLearning.RayTracer.Math
         {
             return (float) System.Math.Sqrt(X * X + Y * Y + Z * Z);
         }
+
+        public override string ToString()
+        {
+            return "(" + X + ", " + Y + ", " + Z + ")";
+        }
+
         #endregion
     }
 }
