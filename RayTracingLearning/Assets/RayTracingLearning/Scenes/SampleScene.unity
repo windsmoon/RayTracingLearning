@@ -478,7 +478,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3ff46d459c576e4e9eb2556b04fbd29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isUseAA: 1
+  isUseAA: 0
   aaSampleCount: 100
   maxReflectCount: 50
   globalMetalFuzziness: 1
@@ -513,14 +513,14 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Texture: {fileID: 1356336257}
+  m_Texture: {fileID: 1609276311}
   m_UVRect:
     serializedVersion: 2
     x: 0
     y: 0
     width: 1
     height: 1
---- !u!28 &1356336257
+--- !u!28 &1609276311
 Texture2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

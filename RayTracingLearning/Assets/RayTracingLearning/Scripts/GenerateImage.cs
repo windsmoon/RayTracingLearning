@@ -42,6 +42,7 @@ namespace RayTracingLearning
         private Sphere sphere2;
         private Sphere sphere3;
         private Sphere sphere4;
+        private Sphere sphere5;
         private List<Geometry> sphereList;
         private Texture2D texture;
         private Camera camera;
@@ -143,7 +144,8 @@ namespace RayTracingLearning
             sphere1 = new Sphere(lambertian1, new Vector3(0f, 0f, 1f), 0.5f);
             sphere2 = new Sphere(lambertian2, new Vector3(0f,-100.5f,1f), 100f);
             sphere3 = new Sphere(metal1, new Vector3(1f,0f,1f), 0.5f);
-            sphere4 = new Sphere(dielectric1, new Vector3(-1,0,1f), 0.5f);
+            sphere4 = new Sphere(dielectric1, new Vector3(-1f,0f,1f), 0.5f);
+            sphere5 = new Sphere(dielectric1, new Vector3(-1f, 0f, 1f), -0.45f);
             sphereList = new List<Geometry>() {sphere1, sphere2, sphere3, sphere4};
             texture.filterMode = FilterMode.Point;
             texture.Apply();

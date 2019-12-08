@@ -32,7 +32,8 @@ namespace RayTracingLearning.RayTracer.Materials
             Vector3 outwardNormal; // normal of rayIn side
             float refractiveIndexInOverOut;
             float cosIn = Vector3.Dot(rayIn.Direction, hitInfo.Normal);
-            float cosine;
+//            float cosine;
+//            float reflectProb;
             
             if (cosIn > 0) // rayIn come from inside to outside
             {
@@ -40,7 +41,7 @@ namespace RayTracingLearning.RayTracer.Materials
                 refractiveIndexInOverOut = refractiveIndex;
                 cosIn = -cosIn;
                 
-                cosine = refractiveIndex * cosIn / rayIn.Direction.GetLength();
+//                cosine = refractiveIndex * cosIn / rayIn.Direction.GetLength();
             }
 
             else // rayIn come from outside to inside
@@ -48,26 +49,38 @@ namespace RayTracingLearning.RayTracer.Materials
                 outwardNormal = hitInfo.Normal;
                 refractiveIndexInOverOut = 1 / refractiveIndex;
                 
-                cosine = -cosIn / rayIn.Direction.GetLength();
+//                cosine = -cosIn / rayIn.Direction.GetLength();
             } // can not be 0, because intersect only one point will be discarded in hit step
 
-            if (GetRefraciveDirection(cosIn, refractiveIndexInOverOut, rayIn.Direction, outwardNormal, out Vector3 refractiveDirection))
+            if (TryGetRefraciveDirection(cosIn, refractiveIndexInOverOut, rayIn.Direction, outwardNormal, out Vector3 refractiveDirection))
             {
+//                reflectProb = Schlick(cosine, refractiveIndex);    
                 rayOut = new Ray(hitInfo.HitPoint, refractiveDirection);
-                return true;
-            }
-            
-            if (TryGetReflectedVector(rayIn, hitInfo, out Vector3 reflectedVector))
-            {   
-                rayOut = new Ray(hitInfo.HitPoint, reflectedVector + fuzziness * RandomUtility.RandomInSphere(1f));
                 return true;
             }
 
             rayOut = default(Ray);
             return false;
+
+//            else
+//            {
+//                reflectProb = 1f;
+//            }
+//
+//            if (RandomUtility.Random01() < reflectProb)
+//            {
+//                rayOut = new Ray(hitInfo.HitPoint, GetReflectedVector(rayIn, hitInfo));
+//            }
+//
+//            else
+//            {
+//                rayOut = new Ray(hitInfo.HitPoint, refractiveDirection); // if the ray has not refractive ray, reflectProb will be 1
+//            }
+//         
+//            return true;
         }
 
-        private bool GetRefraciveDirection(float cosIn, float refractiveIndexInOverOut, Vector3 inDirection, Vector3 outwardNormal, out Vector3 refractiveDirection)
+        private bool TryGetRefraciveDirection(float cosIn, float refractiveIndexInOverOut, Vector3 inDirection, Vector3 outwardNormal, out Vector3 refractiveDirection)
         {
             float squaredSinOut = refractiveIndexInOverOut * refractiveIndexInOverOut * (1 - cosIn * cosIn);
             float discriminant = 1 - squaredSinOut;
@@ -82,9 +95,9 @@ namespace RayTracingLearning.RayTracer.Materials
             return false;
         }
         
-        private float Schlick(float cos, float refractiveIndex)
+        private float Schlick(float cos, float tempRefractiveIndex)
         {
-            float r0 = (1 - refractiveIndex) / (1 + refractiveIndex);
+            float r0 = (1 - tempRefractiveIndex) / (1 + tempRefractiveIndex);
             r0 = r0 * r0;
             return r0 + (1 - r0) * (float)System.Math.Pow((1 - cos), 5);
         }
