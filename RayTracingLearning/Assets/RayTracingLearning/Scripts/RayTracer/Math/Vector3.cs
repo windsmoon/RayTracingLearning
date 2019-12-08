@@ -90,6 +90,11 @@ namespace RayTracingLearning.RayTracer.Math
         {
             return Vector3.Dot(this, this);
         }
+
+        public float GetLength()
+        {
+            return (float) System.Math.Sqrt(X * X + Y * Y + Z * Z);
+        }
         #endregion
     }
 }
