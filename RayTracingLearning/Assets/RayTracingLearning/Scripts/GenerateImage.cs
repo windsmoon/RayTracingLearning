@@ -18,6 +18,7 @@ using Random = System.Random;
 using Color = RayTracingLearning.RayTracer.Color;
 using Debug = UnityEngine.Debug;
 using Material = RayTracingLearning.RayTracer.Materials.Material;
+using ThreadPriority = System.Threading.ThreadPriority;
 
 namespace RayTracingLearning
 {
@@ -30,7 +31,7 @@ namespace RayTracingLearning
         private int aaSampleCount = 100;
         [SerializeField]
         private int maxReflectCount = 50;
-        [SerializeField, Range(0f, 1f)]
+        [SerializeField, UnityEngine.Range(0f, 1f)]
         private float globalMetalFuzziness = 1f;
         [SerializeField]
         private Vector2Int resolution = new Vector2Int(200, 100);
@@ -42,8 +43,8 @@ namespace RayTracingLearning
         private float fov = 90f;
         [SerializeField]
         private float apeture = 2f;
-//        [SerializeField]
-//        private float focusDistance = 1;
+        [SerializeField]
+        private float focusDistance = 10f;
         [SerializeField]
         private int threadCount = 8;
         private Sphere sphere1;
@@ -131,7 +132,6 @@ namespace RayTracingLearning
             GetComponent<RawImage>().texture = texture;
             Vector3 tempLookFrom = new Vector3(lookFrom.x, lookFrom.y, lookFrom.z);
             Vector3 tempLookAt = new Vector3(lookAt.x, lookAt.y, lookAt.z);
-            float focusDistance = (tempLookFrom - tempLookAt).GetLength();
             camera = new Camera(tempLookFrom , tempLookAt, fov, (float)resolution.x / (float)resolution.y, apeture, focusDistance);
 //            camera = new Camera(new Vector3(0f,2f,1f), new Vector3(0f,0f,1f), 90f, (float)resolution.x / (float)resolution.y);
             InitSpheres();
@@ -150,6 +150,7 @@ namespace RayTracingLearning
                 Thread thread = new Thread(StartThread);
                 threadList.Add(thread);
                 thread.IsBackground = true;
+                thread.Priority = ThreadPriority.Highest;
                 thread.Start(threadData);
             }
 
@@ -164,6 +165,7 @@ namespace RayTracingLearning
                 Thread thread = new Thread(StartThread);
                 threadList.Add(thread);
                 thread.IsBackground = true;
+                thread.Priority = ThreadPriority.Highest;
                 thread.Start(threadData);
             }
             
@@ -175,17 +177,17 @@ namespace RayTracingLearning
 
         private void InitSpheres()
         {
-            Material lambertian1 = new Lambertian(new Color(0.1f, 0.2f, 0.5f));
-            Material lambertian2 = new Lambertian(new Color(0.8f, 0.8f, 0f));
-            Material metal1 = new Metal(new Color(0.8f, 0.6f, 0.2f), 0f * globalMetalFuzziness);
-//            Material metal2 = new Metal(new Color(0.8f, 0.8f, 0.8f), 0.3f * globalMetalFuzziness);
-            Material dielectric1 = new Dielectric(new Color(1f, 1f, 1f), 0f, 1.5f);
-            sphere1 = new Sphere(lambertian1, new Vector3(0f, 0f, 1f), 0.5f);
-            sphere2 = new Sphere(lambertian2, new Vector3(0f,-100.5f,1f), 100f);
-            sphere3 = new Sphere(metal1, new Vector3(1f,0f,1f), 0.5f);
-            sphere4 = new Sphere(dielectric1, new Vector3(-1f,0f,1f), 0.5f);
-            sphere5 = new Sphere(dielectric1, new Vector3(-1f, 0f, 1f), -0.45f);
-            sphereList = new List<Geometry>() {sphere1, sphere2, sphere3, sphere4};
+//            Material lambertian1 = new Lambertian(new Color(0.1f, 0.2f, 0.5f));
+//            Material lambertian2 = new Lambertian(new Color(0.8f, 0.8f, 0f));
+//            Material metal1 = new Metal(new Color(0.8f, 0.6f, 0.2f), 0f * globalMetalFuzziness);
+////            Material metal2 = new Metal(new Color(0.8f, 0.8f, 0.8f), 0.3f * globalMetalFuzziness);
+//            Material dielectric1 = new Dielectric(new Color(1f, 1f, 1f), 0f, 1.5f);
+//            sphere1 = new Sphere(lambertian1, new Vector3(0f, 0f, 1f), 0.5f);
+//            sphere2 = new Sphere(lambertian2, new Vector3(0f,-100.5f,1f), 100f);
+//            sphere3 = new Sphere(metal1, new Vector3(1f,0f,1f), 0.5f);
+//            sphere4 = new Sphere(dielectric1, new Vector3(-1f,0f,1f), 0.5f);
+//            sphere5 = new Sphere(dielectric1, new Vector3(-1f, 0f, 1f), -0.45f);
+//            sphereList = new List<Geometry>() {sphere1, sphere2, sphere3, sphere4};
             
 //            float raidus = (float)System.Math.Cos(System.Math.PI / 4f);
 //            Material lambertianCamera1 = new Lambertian(new Color(0f, 0f, 1f));
@@ -193,6 +195,58 @@ namespace RayTracingLearning
 //            Sphere sphereCamera1 = new Sphere(lambertianCamera1, new Vector3(-raidus, 0f, 1f), raidus);
 //            Sphere sphereCamera2 = new Sphere(lambertianCamera2, new Vector3(raidus, 0f, 1f), raidus);
 //            sphereList = new List<Geometry>() {sphereCamera1, sphereCamera2};
+
+            RandomSpheres();
+        }
+
+        private void RandomSpheres()
+        {
+            sphereList = new List<Geometry>() {};
+            sphereList.Add(new Sphere(new Lambertian(new Color(0.5f, 0.5f, 0.5f)), new Vector3(0f, -1000f, 0f), 1000f));
+
+            for (int i = -11; i < 11; ++i)
+            {
+                for (int j = -11; j < 11; ++j)
+                {
+                    AddRandomMaterialSphere(i, j);
+                }
+            }
+        }
+
+        private void AddRandomMaterialSphere(int a, int b)
+        {
+            float randomMaterialValue = RandomUtility.Random01();
+            Vector3 center = new Vector3(a + 0.9f * RandomUtility.Random01(), 0.2f, -b - 0.9f * RandomUtility.Random01());
+
+            if ((center - new Vector3(4.0f, 0.2f, 0f)).GetLength() > 0.9f)
+            {
+                if (randomMaterialValue < 0.8f)
+                {
+                    Lambertian lambertian = new Lambertian(
+                        new Color(RandomUtility.Random01() * RandomUtility.Random01(), RandomUtility.Random01() * RandomUtility.Random01(), RandomUtility.Random01() * RandomUtility.Random01()));
+                    Sphere sphere = new Sphere(lambertian, center, 0.2f);
+                    sphereList.Add(sphere);
+                }
+                
+                else if (randomMaterialValue < 0.95f)
+                {
+                    Metal metal = new Metal(
+                        new Color(0.5f + (1f + RandomUtility.Random01()), 0.5f + (1f + RandomUtility.Random01()), 0.5f + (1f + RandomUtility.Random01())), 0.5f * RandomUtility.Random01());
+                    Sphere sphere = new Sphere(metal, center, 0.2f);
+                    sphereList.Add(sphere);
+                }
+
+                else
+                {
+                    Dielectric dielectric = new Dielectric(new Color(1f, 1f, 1f), 0f, 1.5f);
+                    Sphere sphere = new Sphere(dielectric, center, 0.2f);
+                    sphereList.Add(sphere);                        
+                }
+            }
+            
+            sphereList.Add(new Sphere(new Dielectric(new Color(1f, 1f, 1f), 0f, 1.5f), new Vector3(0f, 1f, 0f), 1.0f));
+            sphereList.Add(new Sphere(new Lambertian(new Color(0.4f, 0.2f, 0.1f)), new Vector3(-4f, 1f, 0f), 1.0f));
+            sphereList.Add(new Sphere(new Metal(new Color(0.7f, 0.6f, 0.5f), 0f), new Vector3(4f, 1f, 0f), 1.0f));
         }
         
         private void SaveToDisk()

@@ -479,13 +479,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isUseAA: 1
-  aaSampleCount: 100
+  aaSampleCount: 10
   maxReflectCount: 50
   globalMetalFuzziness: 1
   resolution: {x: 200, y: 100}
-  lookFrom: {x: -2, y: 2, z: -1}
-  lookAt: {x: 0, y: 0, z: 1}
-  fov: 90
+  lookFrom: {x: 13, y: 2, z: -3}
+  lookAt: {x: 0, y: 0, z: 0}
+  fov: 20
+  apeture: 0.1
+  focusDistance: 10
   threadCount: 1
 --- !u!222 &1319523297
 CanvasRenderer:
@@ -515,14 +517,14 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Texture: {fileID: 1609276311}
+  m_Texture: {fileID: 2106806527}
   m_UVRect:
     serializedVersion: 2
     x: 0
     y: 0
     width: 1
     height: 1
---- !u!28 &1609276311
+--- !u!28 &2106806527
 Texture2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
