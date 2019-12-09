@@ -478,7 +478,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3ff46d459c576e4e9eb2556b04fbd29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isUseAA: 0
+  isUseAA: 1
   aaSampleCount: 100
   maxReflectCount: 50
   globalMetalFuzziness: 1

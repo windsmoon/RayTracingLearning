@@ -127,6 +127,7 @@ namespace RayTracingLearning
             texture.Apply();
             GetComponent<RawImage>().texture = texture;
             camera = new Camera(new Vector3(-2f,2f,-1f), new Vector3(0f,0f,1f), 90f, (float)resolution.x / (float)resolution.y);
+//            camera = new Camera(new Vector3(0f,2f,1f), new Vector3(0f,0f,1f), 90f, (float)resolution.x / (float)resolution.y);
             InitSpheres();
             timer = 0f;
             finishPixelCount = 0;

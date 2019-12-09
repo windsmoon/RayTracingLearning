@@ -71,6 +71,16 @@ namespace RayTracingLearning.RayTracer.Math
             return new Vector3(value1.X / scale, value1.Y / scale, value1.Z / scale); 
         }
 
+        public static bool operator ==(Vector3 value1, Vector3 value2)
+        {
+            return value1.X == value2.X && value1.Y == value2.Y && value1.Z == value2.Z;
+        }
+        
+        public static bool operator !=(Vector3 value1, Vector3 value2)
+        {
+            return !(value1 == value2);
+        }
+
         public void Normalize()
         {
             float lenght = (float) System.Math.Sqrt(X * X + Y * Y + Z * Z);
