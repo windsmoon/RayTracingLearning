@@ -35,9 +35,13 @@ namespace RayTracingLearning
         [SerializeField]
         private Vector2Int resolution = new Vector2Int(200, 100);
         [SerializeField]
-        private int threadCount = 8;
+        private UnityEngine.Vector3 lookFrom = new UnityEngine.Vector3(0f, 0f, -1f);
         [SerializeField]
-        private float updateInterval = 0f;
+        private UnityEngine.Vector3 lookAt = new UnityEngine.Vector3(0f, 0f, 1f);
+        [SerializeField]
+        private float fov = 90f;
+        [SerializeField]
+        private int threadCount = 8;
         private Sphere sphere1;
         private Sphere sphere2;
         private Sphere sphere3;
@@ -64,36 +68,31 @@ namespace RayTracingLearning
             
             timer += Time.deltaTime;
 
-            if (timer >= updateInterval)
+            TextureColorData textureColorData;
+            int count = tempTextureColorDataQueue.Count;
+            int counter = 0;
+            
+            while (tempTextureColorDataQueue.TryPeek(out textureColorData) && counter <= count)
             {
-                TextureColorData textureColorData;
-                int count = tempTextureColorDataQueue.Count;
-                int counter = 0;
+                tempTextureColorDataQueue.TryDequeue(out textureColorData);
+                Color color = textureColorData.color;
+                texture.SetPixel(textureColorData.Col, textureColorData.row, new UnityEngine.Color(color.R, color.G, color.B, 1f));
+                ++count;
+                ++finishPixelCount;
+            }
+            
+            if (count > 0)
+            {
+                texture.Apply();
                 
-                while (tempTextureColorDataQueue.TryPeek(out textureColorData) && counter <= count)
+                if (finishPixelCount == resolution.x * resolution.y)
                 {
-                    tempTextureColorDataQueue.TryDequeue(out textureColorData);
-                    Color color = textureColorData.color;
-                    texture.SetPixel(textureColorData.Col, textureColorData.row, new UnityEngine.Color(color.R, color.G, color.B, 1f));
-                    ++count;
-                    ++finishPixelCount;
-                }
-                
-                timer = 0f;
-
-                if (count > 0)
-                {
-                    texture.Apply();
-                    
-                    if (finishPixelCount == resolution.x * resolution.y)
-                    {
-                        isGenerating = false;
-                        stopwatch.Stop();
-                        Debug.Log("generate finish");
-                        EditorUtility.DisplayDialog("ray tracer", "ray tracer used time : " + stopwatch.Elapsed.TotalSeconds.ToString(), "confirm");
-                        OnDestroy();
-                        SaveToDisk();
-                    }
+                    isGenerating = false;
+                    stopwatch.Stop();
+                    Debug.Log("generate finish");
+                    EditorUtility.DisplayDialog("ray tracer", "ray tracer used time : " + stopwatch.Elapsed.TotalSeconds.ToString(), "confirm");
+                    OnDestroy();
+                    SaveToDisk();
                 }
             }
             
@@ -126,7 +125,7 @@ namespace RayTracingLearning
             texture.filterMode = FilterMode.Point;
             texture.Apply();
             GetComponent<RawImage>().texture = texture;
-            camera = new Camera(new Vector3(-2f,2f,-1f), new Vector3(0f,0f,1f), 90f, (float)resolution.x / (float)resolution.y);
+            camera = new Camera(new Vector3(lookFrom.x, lookFrom.y, lookFrom.z), new Vector3(lookAt.x, lookAt.y, lookAt.z), fov, (float)resolution.x / (float)resolution.y);
 //            camera = new Camera(new Vector3(0f,2f,1f), new Vector3(0f,0f,1f), 90f, (float)resolution.x / (float)resolution.y);
             InitSpheres();
             timer = 0f;

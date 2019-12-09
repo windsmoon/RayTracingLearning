@@ -483,8 +483,10 @@ MonoBehaviour:
   maxReflectCount: 50
   globalMetalFuzziness: 1
   resolution: {x: 200, y: 100}
+  lookFrom: {x: -2, y: 2, z: -1}
+  lookAt: {x: 0, y: 0, z: 1}
+  fov: 90
   threadCount: 1
-  updateInterval: 0
 --- !u!222 &1319523297
 CanvasRenderer:
   m_ObjectHideFlags: 0
