@@ -41,6 +41,10 @@ namespace RayTracingLearning
         [SerializeField]
         private float fov = 90f;
         [SerializeField]
+        private float apeture = 2f;
+//        [SerializeField]
+//        private float focusDistance = 1;
+        [SerializeField]
         private int threadCount = 8;
         private Sphere sphere1;
         private Sphere sphere2;
@@ -125,7 +129,10 @@ namespace RayTracingLearning
             texture.filterMode = FilterMode.Point;
             texture.Apply();
             GetComponent<RawImage>().texture = texture;
-            camera = new Camera(new Vector3(lookFrom.x, lookFrom.y, lookFrom.z), new Vector3(lookAt.x, lookAt.y, lookAt.z), fov, (float)resolution.x / (float)resolution.y);
+            Vector3 tempLookFrom = new Vector3(lookFrom.x, lookFrom.y, lookFrom.z);
+            Vector3 tempLookAt = new Vector3(lookAt.x, lookAt.y, lookAt.z);
+            float focusDistance = (tempLookFrom - tempLookAt).GetLength();
+            camera = new Camera(tempLookFrom , tempLookAt, fov, (float)resolution.x / (float)resolution.y, apeture, focusDistance);
 //            camera = new Camera(new Vector3(0f,2f,1f), new Vector3(0f,0f,1f), 90f, (float)resolution.x / (float)resolution.y);
             InitSpheres();
             timer = 0f;

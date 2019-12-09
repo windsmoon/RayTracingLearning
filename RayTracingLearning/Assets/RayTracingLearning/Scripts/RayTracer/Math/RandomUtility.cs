@@ -33,6 +33,18 @@ namespace RayTracingLearning.RayTracer.Math
             return direction;
         }
 
+        public static Vector3 RandowInDisk(float radius)
+        {
+            Vector3 direction;
+
+            do
+            {
+                direction = 2f * new Vector3(Random01(), Random01(), Random01()) - new Vector3(1f, 1f, 0f);
+            } while (direction.GetSquaredLength() >= 1);
+
+            return direction;
+        }
+
         public static float Random01()
         {
             return (float)random.NextDouble();
