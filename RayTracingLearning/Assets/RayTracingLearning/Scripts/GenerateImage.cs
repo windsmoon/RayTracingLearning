@@ -211,6 +211,10 @@ namespace RayTracingLearning
                     AddRandomMaterialSphere(i, j);
                 }
             }
+            
+            sphereList.Add(new Sphere(new Dielectric(new Color(1f, 1f, 1f), 0f, 1.5f), new Vector3(0f, 1f, 0f), 1.0f));
+            sphereList.Add(new Sphere(new Lambertian(new Color(0.4f, 0.2f, 0.1f)), new Vector3(-4f, 1f, 0f), 1.0f));
+            sphereList.Add(new Sphere(new Metal(new Color(0.7f, 0.6f, 0.5f), 0f), new Vector3(4f, 1f, 0f), 1.0f));
         }
 
         private void AddRandomMaterialSphere(int a, int b)
@@ -243,10 +247,6 @@ namespace RayTracingLearning
                     sphereList.Add(sphere);                        
                 }
             }
-            
-            sphereList.Add(new Sphere(new Dielectric(new Color(1f, 1f, 1f), 0f, 1.5f), new Vector3(0f, 1f, 0f), 1.0f));
-            sphereList.Add(new Sphere(new Lambertian(new Color(0.4f, 0.2f, 0.1f)), new Vector3(-4f, 1f, 0f), 1.0f));
-            sphereList.Add(new Sphere(new Metal(new Color(0.7f, 0.6f, 0.5f), 0f), new Vector3(4f, 1f, 0f), 1.0f));
         }
         
         private void SaveToDisk()
