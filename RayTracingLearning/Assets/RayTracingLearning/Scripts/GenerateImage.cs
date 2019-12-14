@@ -57,21 +57,32 @@ namespace RayTracingLearning
         private new Camera camera;
         private bool isGenerating = false;
         private Stopwatch stopwatch;
-        private float timer;
         private List<Thread> threadList;
         private ConcurrentQueue<TextureColorData> tempTextureColorDataQueue;
         private int finishPixelCount;
+        private Text text;
+        private float timer = 0f;
         #endregion
         
         #region unity methods
+        private void Awake()
+        {
+            #if !UNITY_EDITOR
+            Generate();
+            #endif
+
+            text = transform.Find("Text").gameObject.GetComponent<Text>();
+        }
+
         private void Update()
         {
             if (isGenerating == false)
             {
                 return;
             }
-            
+
             timer += Time.deltaTime;
+            text.text = timer.ToString();
             TextureColorData textureColorData;
             int count = tempTextureColorDataQueue.Count;
             int counter = 0;
@@ -94,7 +105,9 @@ namespace RayTracingLearning
                     isGenerating = false;
                     stopwatch.Stop();
                     Debug.Log("generate finish");
+                    #if UNITY_EDITOR
                     EditorUtility.DisplayDialog("ray tracer", "ray tracer used time : " + stopwatch.Elapsed.TotalSeconds.ToString(), "confirm");
+                    #endif
                     OnDestroy();
                     SaveToDisk();
                 }
@@ -122,6 +135,7 @@ namespace RayTracingLearning
         {
             OnDestroy();
             Debug.Log("generate start");
+            timer = 0f;
             // build the world, width : 200, height : 100, depth : 100
             texture = new Texture2D(resolution.x, resolution.y);
             texture.filterMode = FilterMode.Point;
@@ -132,7 +146,6 @@ namespace RayTracingLearning
             camera = new Camera(tempLookFrom , tempLookAt, fov, (float)resolution.x / (float)resolution.y, apeture, focusDistance);
 //            camera = new Camera(new Vector3(0f,2f,1f), new Vector3(0f,0f,1f), 90f, (float)resolution.x / (float)resolution.y);
             InitSpheres();
-            timer = 0f;
             finishPixelCount = 0;
             tempTextureColorDataQueue = new ConcurrentQueue<TextureColorData>();
             int perThreadRowCount = resolution.y / threadCount;
