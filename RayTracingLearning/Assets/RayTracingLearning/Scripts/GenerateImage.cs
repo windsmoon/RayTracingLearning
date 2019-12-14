@@ -68,9 +68,9 @@ namespace RayTracingLearning
         private void Awake()
         {
             #if !UNITY_EDITOR
+            ParseConfig();
             Generate();
             #endif
-
             text = transform.Find("Text").gameObject.GetComponent<Text>();
         }
 
@@ -203,6 +203,53 @@ namespace RayTracingLearning
 //                    ThreadPool.QueueUserWorkItem(new WaitCallback(StartThread), threadData);
 //                }
 //            }
+        }
+
+        [ContextMenu("Generate Config File")]
+        private void GenerateConfigFile()
+        {
+            string filePath = "Bin/config.txt";
+            
+            if (System.IO.File.Exists(filePath) == true)
+            {
+                System.IO.File.Delete(filePath);
+            }
+            
+            FileStream fs = new FileStream(filePath, FileMode.Create);
+            StreamWriter sw = new StreamWriter(fs);
+            sw.WriteLine((isUseAA ? 1 : 0).ToString());
+            sw.WriteLine(aaSampleCount.ToString());
+            sw.WriteLine(maxReflectCount.ToString());
+            sw.WriteLine(resolution.x.ToString());
+            sw.WriteLine(resolution.y.ToString());
+            sw.WriteLine(lookFrom.x.ToString());
+            sw.WriteLine(lookFrom.y.ToString());
+            sw.WriteLine(lookFrom.z.ToString());
+            sw.WriteLine(lookAt.x.ToString());
+            sw.WriteLine(lookAt.y.ToString());
+            sw.WriteLine(lookAt.z.ToString());
+            sw.WriteLine(fov.ToString());
+            sw.WriteLine(apeture.ToString());
+            sw.WriteLine(focusDistance.ToString());
+//            sw.Write((isUseAA ? 1 : 0).ToString() + "\r\n");
+//            sw.Write(aaSampleCount.ToString() + "\r\n");
+//            sw.Write(maxReflectCount.ToString() + "\r\n");
+//            sw.Write(resolution.x.ToString() + "\r\n");
+//            sw.Write(resolution.y.ToString() + "\r\n");
+//            sw.Write(lookFrom.x.ToString() + "\r\n");
+//            sw.Write(lookFrom.y.ToString() + "\r\n");
+//            sw.Write(lookFrom.z.ToString() + "\r\n");
+//            sw.Write(lookAt.x.ToString() + "\r\n");
+//            sw.Write(lookAt.y.ToString() + "\r\n");
+//            sw.Write(lookAt.z.ToString() + "\r\n");
+//            sw.Write(fov.ToString() + "\r\n");
+//            sw.Write(apeture.ToString() + "\r\n");
+//            sw.Write(focusDistance.ToString() + "\r\n");
+            sw.Close();
+            fs.Close();
+            #if UNITY_EDITOR
+            AssetDatabase.Refresh(ImportAssetOptions.Default);
+            #endif
         }
 
         private void InitSpheres()
@@ -424,6 +471,45 @@ namespace RayTracingLearning
             }
             
             return GetColorForBackground(ray);
+        }
+
+        private void ParseConfig()
+        {
+            string filePath = "config.txt";
+            
+            if (System.IO.File.Exists(filePath) == false)
+            {
+                return;
+            }
+            
+            FileStream fs = new FileStream(filePath, FileMode.Open);
+            StreamReader sr = new StreamReader(fs);
+            isUseAA = sr.ReadLine() == "1" ? true : false;
+            aaSampleCount = Convert.ToInt32(sr.ReadLine());
+            maxReflectCount = Convert.ToInt32(sr.ReadLine());    
+            resolution = new Vector2Int(Convert.ToInt32(sr.ReadLine()), Convert.ToInt32(sr.ReadLine()));
+            lookFrom = new UnityEngine.Vector3(Convert.ToSingle(sr.ReadLine()), Convert.ToSingle(sr.ReadLine()), Convert.ToSingle(sr.ReadLine()));
+            lookAt = new UnityEngine.Vector3(Convert.ToSingle(sr.ReadLine()), Convert.ToSingle(sr.ReadLine()), Convert.ToSingle(sr.ReadLine()));
+            fov = Convert.ToSingle(sr.ReadLine());
+            apeture = Convert.ToSingle(sr.ReadLine());
+            focusDistance = Convert.ToSingle(sr.ReadLine());
+            
+//            sr.Read((isUseAA ? 1 : 0).ToString() + "\r\n");
+//            sr.Write(aaSampleCount.ToString() + "\r\n");
+//            sr.Write(maxReflectCount.ToString() + "\r\n");
+//            sr.Write(resolution.x.ToString() + "\r\n");
+//            sr.Write(resolution.y.ToString() + "\r\n");
+//            sr.Write(lookFrom.x.ToString() + "\r\n");
+//            sr.Write(lookFrom.y.ToString() + "\r\n");
+//            sr.Write(lookFrom.z.ToString() + "\r\n");
+//            sr.Write(lookAt.x.ToString() + "\r\n");
+//            sr.Write(lookAt.y.ToString() + "\r\n");
+//            sr.Write(lookAt.z.ToString() + "\r\n");
+//            sr.Write(fov.ToString() + "\r\n");
+//            sr.Write(apeture.ToString() + "\r\n");
+//            sr.Write(focusDistance.ToString() + "\r\n");
+            sr.Close();
+            fs.Close();
         }
         #endregion
         
