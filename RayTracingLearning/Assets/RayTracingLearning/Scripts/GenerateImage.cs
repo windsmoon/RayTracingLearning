@@ -82,7 +82,7 @@ namespace RayTracingLearning
                 tempTextureColorDataQueue.TryDequeue(out textureColorData);
                 Color color = textureColorData.color;
                 texture.SetPixel(textureColorData.Col, textureColorData.row, new UnityEngine.Color(color.R, color.G, color.B, 1f));
-                ++count;
+                ++counter;
                 ++finishPixelCount;
             }
             
@@ -146,6 +146,8 @@ namespace RayTracingLearning
                 ThreadData threadData = new ThreadData();
                 threadData.StartRow = i * perThreadRowCount;
                 threadData.EndRow = threadData.StartRow + perThreadRowCount - 1;
+                threadData.StartCol = 0;
+                threadData.EndCol = resolution.x;
                 threadData.ID = i;
                 Thread thread = new Thread(StartThread);
                 threadList.Add(thread);
@@ -161,6 +163,8 @@ namespace RayTracingLearning
                 ThreadData threadData = new ThreadData();
                 threadData.StartRow = resolution.y - leftRowCount;
                 threadData.EndRow = resolution.y - 1;
+                threadData.StartCol = 0;
+                threadData.EndCol = resolution.x;
                 threadData.ID = threadCount;
                 Thread thread = new Thread(StartThread);
                 threadList.Add(thread);
@@ -168,11 +172,27 @@ namespace RayTracingLearning
                 thread.Priority = ThreadPriority.Highest;
                 thread.Start(threadData);
             }
-            
+
             isGenerating = true;
             stopwatch = new Stopwatch();
             stopwatch.Reset();
             stopwatch.Start();
+//            ThreadPool.SetMinThreads(1, 1);
+//            ThreadPool.SetMaxThreads(1, 1);
+//            
+//            for (int row = 0; row < resolution.y; ++row)
+//            {
+//                for (int col = 0; col < resolution.x; ++col)
+//                {
+//                    ThreadData threadData = new ThreadData();
+//                    threadData.StartRow = row;
+//                    threadData.EndRow = row;
+//                    threadData.StartCol = col;
+//                    threadData.EndCol = col;
+//                    threadData.ID = row * resolution.x + col;
+//                    ThreadPool.QueueUserWorkItem(new WaitCallback(StartThread), threadData);
+//                }
+//            }
         }
 
         private void InitSpheres()
@@ -272,12 +292,12 @@ namespace RayTracingLearning
         private void StartThread(object param)
         {
             ThreadData threadData = (ThreadData)param;
-            Debug.Log("therad " + threadData.ID + " start");
-            int tempDebug = 0;
+//            Debug.Log("therad " + threadData.ID + " start");
+//            int tempDebug = 0;
 
             for (int row = threadData.StartRow; row <= threadData.EndRow; ++row)
             {
-                for (int col = 0; col < resolution.x; ++col)
+                for (int col = threadData.StartCol; col <= threadData.EndCol; ++col)
                 {
                     Color color = GetColor(camera, texture, col, row);
                     color.R = (float)Math.Sqrt(color.R);
@@ -288,12 +308,12 @@ namespace RayTracingLearning
                     textureColorData.row = row;
                     textureColorData.Col = col;
                     tempTextureColorDataQueue.Enqueue(textureColorData);
-                    ++tempDebug;
+//                    ++tempDebug;
                     //texture.SetPixel(currentCol, currentRow, new UnityEngine.Color(color.R, color.G, color.B, 1f));
                 }
             }
             
-            Debug.Log("therad " + threadData.ID + " finish  " + tempDebug);
+//            Debug.Log("therad " + threadData.ID + " finish  " + tempDebug);
         }
         
         private Color GetColor(Camera camera, Texture texture, int x, int y)
@@ -403,6 +423,8 @@ namespace RayTracingLearning
             public int ID;
             public int StartRow;
             public int EndRow;
+            public int StartCol;
+            public int EndCol;
         }
         
         private struct TextureColorData
