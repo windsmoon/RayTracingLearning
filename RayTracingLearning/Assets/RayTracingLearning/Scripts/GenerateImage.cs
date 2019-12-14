@@ -72,7 +72,6 @@ namespace RayTracingLearning
             }
             
             timer += Time.deltaTime;
-
             TextureColorData textureColorData;
             int count = tempTextureColorDataQueue.Count;
             int counter = 0;
@@ -100,8 +99,6 @@ namespace RayTracingLearning
                     SaveToDisk();
                 }
             }
-            
-            texture.Apply();
         }
 
         private void OnDestroy()
@@ -147,7 +144,7 @@ namespace RayTracingLearning
                 threadData.StartRow = i * perThreadRowCount;
                 threadData.EndRow = threadData.StartRow + perThreadRowCount - 1;
                 threadData.StartCol = 0;
-                threadData.EndCol = resolution.x;
+                threadData.EndCol = resolution.x - 1;
                 threadData.ID = i;
                 Thread thread = new Thread(StartThread);
                 threadList.Add(thread);
