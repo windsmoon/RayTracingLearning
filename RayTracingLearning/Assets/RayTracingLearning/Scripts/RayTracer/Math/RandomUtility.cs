@@ -11,7 +11,7 @@ namespace RayTracingLearning.RayTracer.Math
         #region constructors
         static RandomUtility()
         {
-            random = new Random();
+            random = new Random(17448);
         }
         #endregion
         
@@ -50,6 +50,11 @@ namespace RayTracingLearning.RayTracer.Math
             return (float)random.NextDouble();
         }
 
+        public static int Random(int min, int max)
+        {
+            return random.Next(min, max);
+        }
+        
         public static float Random(float min, float max)
         {
             float randomValue = (float)random.NextDouble();

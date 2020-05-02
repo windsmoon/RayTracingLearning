@@ -4,7 +4,7 @@ using RayTracingLearning.RayTracer.Materials;
 
 namespace RayTracingLearning.RayTracer.Geometries
 {
-    public abstract class Geometry
+    public abstract class Geometry : IGetAABB
     {
         #region fields
         protected Material material;
@@ -27,6 +27,10 @@ namespace RayTracingLearning.RayTracer.Geometries
         {
             get { return material; }
         }
+        #endregion
+
+        #region interfaces
+        public abstract AABB GetAABB();
         #endregion
         
         #region methods

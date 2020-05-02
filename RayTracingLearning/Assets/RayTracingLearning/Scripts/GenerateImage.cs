@@ -11,6 +11,7 @@ using RayTracingLearning.RayTracer.Geometries;
 using RayTracingLearning.RayTracer.Materials;
 using RayTracingLearning.RayTracer.Math;
 using UnityEditor;
+using UnityEngine.UIElements;
 using Ray = RayTracingLearning.RayTracer.Ray;
 using Vector3 = RayTracingLearning.RayTracer.Math.Vector3;
 using Camera = RayTracingLearning.RayTracer.Camera;
@@ -47,12 +48,15 @@ namespace RayTracingLearning
         private float focusDistance = 10f;
         [SerializeField]
         private int threadCount = 8;
+        [SerializeField]
+        private bool useBVH = true;
         private Sphere sphere1;
         private Sphere sphere2;
         private Sphere sphere3;
         private Sphere sphere4;
         private Sphere sphere5;
         private List<Geometry> sphereList;
+        private BVH<Geometry> bvh;
         private Texture2D texture;
         private new Camera camera;
         private bool isGenerating = false;
@@ -102,6 +106,7 @@ namespace RayTracingLearning
                 
                 if (finishPixelCount == resolution.x * resolution.y)
                 {
+                    Debug.Log(RayTracer.RayTracer.Counter);
                     isGenerating = false;
                     stopwatch.Stop();
                     Debug.Log("generate finish");
@@ -146,6 +151,7 @@ namespace RayTracingLearning
             camera = new Camera(tempLookFrom , tempLookAt, fov, (float)resolution.x / (float)resolution.y, apeture, focusDistance);
 //            camera = new Camera(new Vector3(0f,2f,1f), new Vector3(0f,0f,1f), 90f, (float)resolution.x / (float)resolution.y);
             InitSpheres();
+            RayTracer.RayTracer.Counter = 0;
             finishPixelCount = 0;
             tempTextureColorDataQueue = new ConcurrentQueue<TextureColorData>();
             int perThreadRowCount = resolution.y / threadCount;
@@ -274,6 +280,11 @@ namespace RayTracingLearning
 //            sphereList = new List<Geometry>() {sphereCamera1, sphereCamera2};
 
             RandomSpheres();
+
+            if (useBVH)
+            {
+                bvh = new BVH<Geometry>(sphereList);
+            }
         }
 
         private void RandomSpheres()
@@ -384,12 +395,11 @@ namespace RayTracingLearning
             }
 
             Color color = new Color(0f, 0f, 0f);
-            Random random = new Random();
             
             for (int i = 0; i < aaSampleCount; ++i)
             {
-                float randomU = (float) (x + random.Next(0, 100) * 0.01f) / resolution.x;
-                float randomV = (float) (y + random.Next(0, 100) * 0.01f) / resolution.y;
+                float randomU = (float) (x + RandomUtility.Random(0, 100) * 0.01f) / resolution.x;
+                float randomV = (float) (y + RandomUtility.Random(0, 100) * 0.01f) / resolution.y;
                 Ray offsetRay = camera.GetRay(randomU, randomV);
                 Color offsetColor = GetColorImpl(offsetRay);
                 color += offsetColor;
@@ -413,61 +423,77 @@ namespace RayTracingLearning
             return Color.Lerp(new Color(1f, 1f, 1f), new Color(0.5f, 0.7f, 1.0f), t);
         }
 
-        private Color GetColorForSphere(Ray ray, Vector3 center, float radius)
-        {
-            Sphere sphere = new Sphere(null, center, radius);
-            
-            if (sphere.IsHit(ray))
-            {
-                return new Color(1f, 0f, 0f, 1f);
-            }
+        // private Color GetColorForSphere(Ray ray, Vector3 center, float radius)
+        // {
+        //     Sphere sphere = new Sphere(null, center, radius);
+        //     
+        //     if (sphere.IsHit(ray))
+        //     {
+        //         return new Color(1f, 0f, 0f, 1f);
+        //     }
+        //
+        //     return GetColorForBackground(ray);
+        // }
 
-            return GetColorForBackground(ray);
-        }
-
-        private Color GetNormalColorForSphere(Ray ray, Vector3 center, float radius)
-        {
-            HitInfo hitInfo;
-            Sphere sphere = new Sphere(null, center, radius);
-            
-            if (sphere.GetHitInfo(ray, out hitInfo, 0, float.MaxValue))
-            {
-                Vector3 normal = hitInfo.Normal;
-                Vector3 colorVector = (normal + new Vector3(1f, 1f, 1f)) * 0.5f;
-                return new Color(colorVector.X, colorVector.Y, colorVector.Z);
-            }
-
-            return GetColorForBackground(ray);
-        }
-
-        private Color GetTwoSphereNormalColorForSphere(Ray ray)
-        {
-            if (Geometry.GetHitInfo(ray, sphereList, out HitInfo hitInfo))
-            {
-                Vector3 normal = hitInfo.Normal;
-                Vector3 colorVector = (normal + new Vector3(1f, 1f, 1f)) * 0.5f;
-                return new Color(colorVector.X, colorVector.Y, colorVector.Z);
-            }
-            
-            return GetColorForBackground(ray);
-        }
+        // private Color GetNormalColorForSphere(Ray ray, Vector3 center, float radius)
+        // {
+        //     HitInfo hitInfo;
+        //     Sphere sphere = new Sphere(null, center, radius);
+        //     
+        //     if (sphere.GetHitInfo(ray, out hitInfo, 0, float.MaxValue))
+        //     {
+        //         Vector3 normal = hitInfo.Normal;
+        //         Vector3 colorVector = (normal + new Vector3(1f, 1f, 1f)) * 0.5f;
+        //         return new Color(colorVector.X, colorVector.Y, colorVector.Z);
+        //     }
+        //
+        //     return GetColorForBackground(ray);
+        // }
+        //
+        // private Color GetTwoSphereNormalColorForSphere(Ray ray)
+        // {
+        //     if (Geometry.GetHitInfo(ray, sphereList, out HitInfo hitInfo))
+        //     {
+        //         Vector3 normal = hitInfo.Normal;
+        //         Vector3 colorVector = (normal + new Vector3(1f, 1f, 1f)) * 0.5f;
+        //         return new Color(colorVector.X, colorVector.Y, colorVector.Z);
+        //     }
+        //     
+        //     return GetColorForBackground(ray);
+        // }
 
         private Color GetTwoSphereDiffuse(Ray ray, int reflectCount)
         {
-            if (Geometry.GetHitInfo(ray, sphereList, out HitInfo hitInfo))
+            if (useBVH)
             {
-                if (hitInfo.hasReflectedRay && reflectCount <= maxReflectCount)
+                if (RayTracer.RayTracer.GetHitInfo(ray, bvh, out HitInfo hitInfo))
                 {
-                    return hitInfo.Attenuation * GetTwoSphereDiffuse(hitInfo.RayReflected, reflectCount + 1);
-                }
+                    if (hitInfo.hasReflectedRay && reflectCount <= maxReflectCount)
+                    {
+                        return hitInfo.Attenuation * GetTwoSphereDiffuse(hitInfo.RayReflected, reflectCount + 1);
+                    }
 
-                else
-                {
-                    return new Color(0f, 0f, 0f);
+                    else
+                    {
+                        return new Color(0f, 0f, 0f);
+                    }
                 }
-                //Ray scatteredRay = hitInfo.Geometry.ma
-                //Ray reflectedRay = hitInfo.Geometry.GetReflectedRay(hitInfo.RayIn, hitInfo);
-                //Vector3 point = hitInfo.HitPoint + hitInfo.Normal + RandomUtility.RandomInSphere(1);
+            }
+
+            else
+            {
+                if (RayTracer.RayTracer.GetHitInfo(ray, sphereList, out HitInfo hitInfo))
+                {
+                    if (hitInfo.hasReflectedRay && reflectCount <= maxReflectCount)
+                    {
+                        return hitInfo.Attenuation * GetTwoSphereDiffuse(hitInfo.RayReflected, reflectCount + 1);
+                    }
+
+                    else
+                    {
+                        return new Color(0f, 0f, 0f);
+                    }
+                }
             }
             
             return GetColorForBackground(ray);

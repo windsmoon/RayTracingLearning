@@ -15,6 +15,13 @@ namespace RayTracingLearning.RayTracer.Math
             this.Y = y;
             this.Z = z;
         }
+
+        public Vector3(float value)
+        {
+            this.X = value;
+            this.Y = value;
+            this.Z = value;
+        }
         #endregion
 
         #region methods
@@ -31,6 +38,16 @@ namespace RayTracingLearning.RayTracer.Math
             return new Vector3(value1.Y * value2.Z - value1.Z * value2.Y, value1.Z * value2.X - value1.X * value2.Z, value1.X * value2.Y - value1.Y * value2.X);
         }
 
+        public static Vector3 Min(Vector3 value1, Vector3 value2)
+        {
+            return new Vector3(System.Math.Min(value1.X, value2.X), System.Math.Min(value1.Y, value2.Y), System.Math.Min(value1.Z, value2.Z));
+        }
+
+        public static Vector3 Max(Vector3 value1, Vector3 value2)
+        {
+            return new Vector3(System.Math.Max(value1.X, value2.X), System.Math.Max(value1.Y, value2.Y), System.Math.Max(value1.Z, value2.Z));
+        }
+        
         public static Vector3 operator +(Vector3 value1, Vector3 value2)
         {
             return new Vector3(value1.X + value2.X, value1.Y + value2.Y, value1.Z + value2.Z);

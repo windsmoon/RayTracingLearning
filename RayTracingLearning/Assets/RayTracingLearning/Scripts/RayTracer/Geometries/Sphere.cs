@@ -19,6 +19,11 @@ namespace RayTracingLearning.RayTracer.Geometries
         #endregion
         
         #region methods
+        public override AABB GetAABB()
+        {
+            return new AABB(center - new Vector3(radius), center + new Vector3(radius));
+        }
+
         public override bool IsHit(Ray rayIn)
         {
             Vector3 oc = rayIn.Origin - center;
@@ -27,7 +32,6 @@ namespace RayTracingLearning.RayTracer.Geometries
             float c = Vector3.Dot(oc, oc) - radius * radius;
             float discriminant = b * b - 4f * a * c;
             return discriminant > 0;
-            return false;
         }
         
         public override bool GetHitInfo(Ray rayIn, out HitInfo hitInfo, float tMin, float tMax)
