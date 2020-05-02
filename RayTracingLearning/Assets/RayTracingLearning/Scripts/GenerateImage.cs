@@ -237,6 +237,7 @@ namespace RayTracingLearning
             sw.WriteLine(fov.ToString());
             sw.WriteLine(apeture.ToString());
             sw.WriteLine(focusDistance.ToString());
+            sw.WriteLine((useBVH ? 1 : 0).ToString());
 //            sw.Write((isUseAA ? 1 : 0).ToString() + "\r\n");
 //            sw.Write(aaSampleCount.ToString() + "\r\n");
 //            sw.Write(maxReflectCount.ToString() + "\r\n");
@@ -510,7 +511,7 @@ namespace RayTracingLearning
             
             FileStream fs = new FileStream(filePath, FileMode.Open);
             StreamReader sr = new StreamReader(fs);
-            isUseAA = sr.ReadLine() == "1" ? true : false;
+            isUseAA = sr.ReadLine() == "1";
             aaSampleCount = Convert.ToInt32(sr.ReadLine());
             maxReflectCount = Convert.ToInt32(sr.ReadLine());    
             resolution = new Vector2Int(Convert.ToInt32(sr.ReadLine()), Convert.ToInt32(sr.ReadLine()));
@@ -519,6 +520,7 @@ namespace RayTracingLearning
             fov = Convert.ToSingle(sr.ReadLine());
             apeture = Convert.ToSingle(sr.ReadLine());
             focusDistance = Convert.ToSingle(sr.ReadLine());
+            useBVH = sr.ReadLine() == "1";
             
 //            sr.Read((isUseAA ? 1 : 0).ToString() + "\r\n");
 //            sr.Write(aaSampleCount.ToString() + "\r\n");
