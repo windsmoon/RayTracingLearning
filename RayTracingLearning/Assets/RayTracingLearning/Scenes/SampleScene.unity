@@ -568,7 +568,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3ff46d459c576e4e9eb2556b04fbd29, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isUseAA: 1
+  isUseAA: 0
   aaSampleCount: 10
   maxReflectCount: 50
   globalMetalFuzziness: 1
@@ -579,7 +579,7 @@ MonoBehaviour:
   apeture: 0.1
   focusDistance: 10
   threadCount: 4
-  useBVH: 1
+  useBVH: 0
 --- !u!222 &1319523297
 CanvasRenderer:
   m_ObjectHideFlags: 0

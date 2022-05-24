@@ -67,6 +67,9 @@ namespace RayTracingLearning
         private int finishPixelCount;
         private Text text;
         private float timer = 0f;
+
+        private Random random = new Random();
+        private long number = 0;
         #endregion
         
         #region unity methods
@@ -85,6 +88,8 @@ namespace RayTracingLearning
             {
                 return;
             }
+            
+            Debug.Log(number);
 
             timer += Time.deltaTime;
             text.text = timer.ToString();
@@ -110,7 +115,6 @@ namespace RayTracingLearning
             }
             
             tempTextureColorDataList.Clear();
-
             
             if (finishPixelCount == resolution.x * resolution.y)
             {
@@ -171,19 +175,23 @@ namespace RayTracingLearning
                     textureColorData.color = color;
                     textureColorData.row = row;
                     textureColorData.Col = col;
-                    
+
                     // tmep
                     // TextureColorData textureColorData = new TextureColorData();
                     // textureColorData.row = row;
                     // textureColorData.Col = col;
-
-                    int a = 1;
-                    a += 1;
+                    // // textureColorData.color = new Color((float)random.NextDouble(), (float)random.NextDouble(), (float)random.NextDouble());
+                    // float color = (row - threadData.StartRow) / (float) (threadData.EndRow - threadData.StartRow);
+                    // textureColorData.color = new Color(color, color, color);
+                    // int a = 1;
+                    // a += 1;
 
                     lock (textureColorDataQueue)
                     {
                         textureColorDataQueue.Enqueue(textureColorData);
                     }
+
+                    number++;
                 }
             }
             
@@ -221,7 +229,7 @@ namespace RayTracingLearning
                 threadData.StartCol = 0;
                 threadData.EndCol = resolution.x - 1;
                 threadData.ID = i;
-                Thread thread = new Thread(StartThread);
+                Thread thread = new Thread(StartThread, Int32.MaxValue);
                 threadList.Add(thread);
                 thread.IsBackground = false;
                 thread.Priority = ThreadPriority.Normal;
