@@ -131,7 +131,6 @@ namespace RayTracingLearning
                 thread.Abort();
             }
         }
-
         #endregion
 
         #region methods
