@@ -62,7 +62,8 @@ namespace RayTracingLearning
         private bool isGenerating = false;
         private Stopwatch stopwatch;
         private List<Thread> threadList;
-        private ConcurrentQueue<TextureColorData> tempTextureColorDataQueue;
+        private Queue<TextureColorData> textureColorDataQueue;
+        private List<TextureColorData> tempTextureColorDataList;
         private int finishPixelCount;
         private Text text;
         private float timer = 0f;
@@ -87,17 +88,33 @@ namespace RayTracingLearning
 
             timer += Time.deltaTime;
             text.text = timer.ToString();
-            TextureColorData textureColorData;
-            int count = tempTextureColorDataQueue.Count;
-            int counter = 0;
+            int count;
             
-            while (tempTextureColorDataQueue.TryPeek(out textureColorData) && counter <= count)
+            lock (textureColorDataQueue)
             {
-                tempTextureColorDataQueue.TryDequeue(out textureColorData);
+                count = textureColorDataQueue.Count;
+            
+                for (int i = 0; i < count; i++)
+                {
+                    TextureColorData textureColorData = textureColorDataQueue.Dequeue();
+                    tempTextureColorDataList.Add(textureColorData);
+                }
+            }
+            
+            finishPixelCount += count;
+            
+            foreach (TextureColorData textureColorData in tempTextureColorDataList)
+            {
                 Color color = textureColorData.color;
                 texture.SetPixel(textureColorData.Col, textureColorData.row, new UnityEngine.Color(color.R, color.G, color.B, 1f));
-                ++counter;
-                ++finishPixelCount;
+            }
+            
+            tempTextureColorDataList.Clear();
+
+            
+            if (finishPixelCount == resolution.x * resolution.y)
+            {
+                isGenerating = false;
             }
             
             if (count > 0)
@@ -110,9 +127,9 @@ namespace RayTracingLearning
                     isGenerating = false;
                     stopwatch.Stop();
                     Debug.Log("generate finish");
-                    #if UNITY_EDITOR
+#if UNITY_EDITOR
                     EditorUtility.DisplayDialog("ray tracer", "ray tracer used time : " + stopwatch.Elapsed.TotalSeconds.ToString(), "confirm");
-                    #endif
+#endif
                     OnDestroy();
                     SaveToDisk();
                 }
@@ -130,15 +147,55 @@ namespace RayTracingLearning
             {
                 thread.Abort();
             }
+            
+            threadList.Clear();
         }
         #endregion
 
         #region methods
+        private void StartThread(object param)
+        {
+            ThreadData threadData = (ThreadData)param;
+            Debug.Log("therad " + threadData.ID + " start");
+//            int tempDebug = 0;
+
+            for (int row = threadData.StartRow; row <= threadData.EndRow; ++row)
+            {
+                for (int col = threadData.StartCol; col <= threadData.EndCol; ++col)
+                {
+                    Color color = GetColor(camera, texture, col, row);
+                    color.R = (float)Math.Sqrt(color.R);
+                    color.G = (float)Math.Sqrt(color.G);
+                    color.B = (float)Math.Sqrt(color.B);
+                    TextureColorData textureColorData = new TextureColorData();
+                    textureColorData.color = color;
+                    textureColorData.row = row;
+                    textureColorData.Col = col;
+                    
+                    // tmep
+                    // TextureColorData textureColorData = new TextureColorData();
+                    // textureColorData.row = row;
+                    // textureColorData.Col = col;
+
+                    int a = 1;
+                    a += 1;
+
+                    lock (textureColorDataQueue)
+                    {
+                        textureColorDataQueue.Enqueue(textureColorData);
+                    }
+                }
+            }
+            
+//            Debug.Log("therad " + threadData.ID + " finish  " + tempDebug);
+        }
+        
         [ContextMenu("Generate Image")]
         private void Generate()
         {
             OnDestroy();
             Debug.Log("generate start");
+            tempTextureColorDataList = new List<TextureColorData>();
             timer = 0f;
             // build the world, width : 200, height : 100, depth : 100
             texture = new Texture2D(resolution.x, resolution.y);
@@ -152,7 +209,7 @@ namespace RayTracingLearning
             InitSpheres();
             RayTracer.RayTracer.Counter = 0;
             finishPixelCount = 0;
-            tempTextureColorDataQueue = new ConcurrentQueue<TextureColorData>();
+            textureColorDataQueue = new Queue<TextureColorData>();
             int perThreadRowCount = resolution.y / threadCount;
             threadList = new List<Thread>(threadCount + 1);
 
@@ -166,8 +223,8 @@ namespace RayTracingLearning
                 threadData.ID = i;
                 Thread thread = new Thread(StartThread);
                 threadList.Add(thread);
-                thread.IsBackground = true;
-                thread.Priority = ThreadPriority.Highest;
+                thread.IsBackground = false;
+                thread.Priority = ThreadPriority.Normal;
                 thread.Start(threadData);
             }
 
@@ -179,12 +236,12 @@ namespace RayTracingLearning
                 threadData.StartRow = resolution.y - leftRowCount;
                 threadData.EndRow = resolution.y - 1;
                 threadData.StartCol = 0;
-                threadData.EndCol = resolution.x;
+                threadData.EndCol = resolution.x - 1;
                 threadData.ID = threadCount;
                 Thread thread = new Thread(StartThread);
                 threadList.Add(thread);
-                thread.IsBackground = true;
-                thread.Priority = ThreadPriority.Highest;
+                thread.IsBackground = false;
+                thread.Priority = ThreadPriority.Normal;
                 thread.Start(threadData);
             }
 
@@ -192,22 +249,38 @@ namespace RayTracingLearning
             stopwatch = new Stopwatch();
             stopwatch.Reset();
             stopwatch.Start();
-//            ThreadPool.SetMinThreads(1, 1);
-//            ThreadPool.SetMaxThreads(1, 1);
-//            
-//            for (int row = 0; row < resolution.y; ++row)
-//            {
-//                for (int col = 0; col < resolution.x; ++col)
-//                {
-//                    ThreadData threadData = new ThreadData();
-//                    threadData.StartRow = row;
-//                    threadData.EndRow = row;
-//                    threadData.StartCol = col;
-//                    threadData.EndCol = col;
-//                    threadData.ID = row * resolution.x + col;
-//                    ThreadPool.QueueUserWorkItem(new WaitCallback(StartThread), threadData);
-//                }
-//            }
+        }
+
+        [ContextMenu("Display Image")]
+        private void DisplayImage()
+        {
+            if (finishPixelCount == resolution.x * resolution.y)
+            {
+                texture.Apply();
+                Debug.Log(RayTracer.RayTracer.Counter);
+                stopwatch.Stop();
+                Debug.Log("generate finish");
+#if UNITY_EDITOR
+                // EditorUtility.DisplayDialog("ray tracer", "ray tracer used time : " + stopwatch.Elapsed.TotalSeconds.ToString(), "confirm");
+#endif
+                OnDestroy();
+                SaveToDisk();
+            }
+
+            else
+            {
+                Debug.LogError("has not finished");
+            }
+        }
+        
+        [ContextMenu("Display Thread State")]
+        private void DisplayThreadState()
+        {
+            for (int i = 0; i < threadList.Count; i++)
+            {
+                Thread thread = threadList[i];
+                Debug.Log("thread " + i + " : " + thread.ThreadState);
+            }
         }
 
         [ContextMenu("Generate Config File")]
@@ -237,20 +310,6 @@ namespace RayTracingLearning
             sw.WriteLine(apeture.ToString());
             sw.WriteLine(focusDistance.ToString());
             sw.WriteLine((useBVH ? 1 : 0).ToString());
-//            sw.Write((isUseAA ? 1 : 0).ToString() + "\r\n");
-//            sw.Write(aaSampleCount.ToString() + "\r\n");
-//            sw.Write(maxReflectCount.ToString() + "\r\n");
-//            sw.Write(resolution.x.ToString() + "\r\n");
-//            sw.Write(resolution.y.ToString() + "\r\n");
-//            sw.Write(lookFrom.x.ToString() + "\r\n");
-//            sw.Write(lookFrom.y.ToString() + "\r\n");
-//            sw.Write(lookFrom.z.ToString() + "\r\n");
-//            sw.Write(lookAt.x.ToString() + "\r\n");
-//            sw.Write(lookAt.y.ToString() + "\r\n");
-//            sw.Write(lookAt.z.ToString() + "\r\n");
-//            sw.Write(fov.ToString() + "\r\n");
-//            sw.Write(apeture.ToString() + "\r\n");
-//            sw.Write(focusDistance.ToString() + "\r\n");
             sw.Close();
             fs.Close();
             #if UNITY_EDITOR
@@ -260,25 +319,6 @@ namespace RayTracingLearning
 
         private void InitSpheres()
         {
-//            Material lambertian1 = new Lambertian(new Color(0.1f, 0.2f, 0.5f));
-//            Material lambertian2 = new Lambertian(new Color(0.8f, 0.8f, 0f));
-//            Material metal1 = new Metal(new Color(0.8f, 0.6f, 0.2f), 0f * globalMetalFuzziness);
-////            Material metal2 = new Metal(new Color(0.8f, 0.8f, 0.8f), 0.3f * globalMetalFuzziness);
-//            Material dielectric1 = new Dielectric(new Color(1f, 1f, 1f), 0f, 1.5f);
-//            sphere1 = new Sphere(lambertian1, new Vector3(0f, 0f, 1f), 0.5f);
-//            sphere2 = new Sphere(lambertian2, new Vector3(0f,-100.5f,1f), 100f);
-//            sphere3 = new Sphere(metal1, new Vector3(1f,0f,1f), 0.5f);
-//            sphere4 = new Sphere(dielectric1, new Vector3(-1f,0f,1f), 0.5f);
-//            sphere5 = new Sphere(dielectric1, new Vector3(-1f, 0f, 1f), -0.45f);
-//            sphereList = new List<Geometry>() {sphere1, sphere2, sphere3, sphere4};
-            
-//            float raidus = (float)System.Math.Cos(System.Math.PI / 4f);
-//            Material lambertianCamera1 = new Lambertian(new Color(0f, 0f, 1f));
-//            Material lambertianCamera2 = new Lambertian(new Color(1f, 0f, 0f));
-//            Sphere sphereCamera1 = new Sphere(lambertianCamera1, new Vector3(-raidus, 0f, 1f), raidus);
-//            Sphere sphereCamera2 = new Sphere(lambertianCamera2, new Vector3(raidus, 0f, 1f), raidus);
-//            sphereList = new List<Geometry>() {sphereCamera1, sphereCamera2};
-
             RandomSpheres();
 
             if (useBVH)
@@ -357,33 +397,6 @@ namespace RayTracingLearning
             #endif
         }
 
-        private void StartThread(object param)
-        {
-            ThreadData threadData = (ThreadData)param;
-//            Debug.Log("therad " + threadData.ID + " start");
-//            int tempDebug = 0;
-
-            for (int row = threadData.StartRow; row <= threadData.EndRow; ++row)
-            {
-                for (int col = threadData.StartCol; col <= threadData.EndCol; ++col)
-                {
-                    Color color = GetColor(camera, texture, col, row);
-                    color.R = (float)Math.Sqrt(color.R);
-                    color.G = (float)Math.Sqrt(color.G);
-                    color.B = (float)Math.Sqrt(color.B);
-                    TextureColorData textureColorData = new TextureColorData();
-                    textureColorData.color = color;
-                    textureColorData.row = row;
-                    textureColorData.Col = col;
-                    tempTextureColorDataQueue.Enqueue(textureColorData);
-//                    ++tempDebug;
-                    //texture.SetPixel(currentCol, currentRow, new UnityEngine.Color(color.R, color.G, color.B, 1f));
-                }
-            }
-            
-//            Debug.Log("therad " + threadData.ID + " finish  " + tempDebug);
-        }
-        
         private Color GetColor(Camera camera, Texture texture, int x, int y)
         {
             if (isUseAA == false)
@@ -520,21 +533,6 @@ namespace RayTracingLearning
             apeture = Convert.ToSingle(sr.ReadLine());
             focusDistance = Convert.ToSingle(sr.ReadLine());
             useBVH = sr.ReadLine() == "1";
-            
-//            sr.Read((isUseAA ? 1 : 0).ToString() + "\r\n");
-//            sr.Write(aaSampleCount.ToString() + "\r\n");
-//            sr.Write(maxReflectCount.ToString() + "\r\n");
-//            sr.Write(resolution.x.ToString() + "\r\n");
-//            sr.Write(resolution.y.ToString() + "\r\n");
-//            sr.Write(lookFrom.x.ToString() + "\r\n");
-//            sr.Write(lookFrom.y.ToString() + "\r\n");
-//            sr.Write(lookFrom.z.ToString() + "\r\n");
-//            sr.Write(lookAt.x.ToString() + "\r\n");
-//            sr.Write(lookAt.y.ToString() + "\r\n");
-//            sr.Write(lookAt.z.ToString() + "\r\n");
-//            sr.Write(fov.ToString() + "\r\n");
-//            sr.Write(apeture.ToString() + "\r\n");
-//            sr.Write(focusDistance.ToString() + "\r\n");
             sr.Close();
             fs.Close();
         }
